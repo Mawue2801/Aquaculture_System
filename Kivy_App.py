@@ -18,7 +18,6 @@ from kivymd.uix.list import OneLineAvatarIconListItem
 Window.size = (800,480)
 
 KV = """
-#:import toast kivymd.toast.toast
 MDScreen:
     BoxLayout:
         orientation: 'vertical'
@@ -295,7 +294,7 @@ class Example(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.screen = Builder.load_string(KV)
-        self.screen = Builder.load_string(KV)
+        self.selected_pond = "1"
         menu_items = [
             {
                 "viewclass": "OneLineListItem",
@@ -313,6 +312,7 @@ class Example(MDApp):
 
     def set_item(self, text_item):
         self.screen.ids.pond_selection.set_item(text_item)
+        self.selected_pond = text_item.split(" ")[1]
         self.menu.dismiss()
 
     def build(self):
@@ -329,7 +329,7 @@ class Example(MDApp):
                     print('Connected to ' + commPort)
         except:
             print('Connection Issue!')
-        # Clock.schedule_interval(self.update, 1)
+        Clock.schedule_interval(self.update, 1)
         Clock.schedule_interval(self.update_time, 1)
         return self.screen
 
@@ -351,11 +351,21 @@ class Example(MDApp):
         self.root.ids.time_label.text = dt_string[1]
         #self.root.ids.container.add_widget(OneLineListItem(text=f"Time change {dt_string[1]}"))
     
-    # def update(self, *args):
-    #     arduino = self.arduino
-    #     data = str(arduino.read(arduino.inWaiting()).decode()).split(",")
-    #     self.root.ids.do_label.text = data[0]
-    #     print(data[0])
+    def update(self, *args):
+        arduino = self.arduino
+        data = str(arduino.readline(arduino.inWaiting()).decode()).split(";")
+        try:
+            data = data[int(self.selected_pond)-1].split(",")
+            self.root.ids.do_label.text = data[0]
+            self.root.ids.temp_label.text = data[1]
+            self.root.ids.pH_label.text = data[2]
+            self.root.ids.water_level_label.text = data[3]
+            self.root.ids.turbidity_label.text = data[4]
+            self.root.ids.conductivity_label.text = data[5].replace("\r\n","")
+            print(data)
+        except:
+            pass
+            print(data)
 
 Example().run()
 

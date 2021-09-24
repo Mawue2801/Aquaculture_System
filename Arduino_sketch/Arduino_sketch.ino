@@ -3,6 +3,7 @@
 int sensePin=4;
 DHT HT(sensePin,Type);
 float humidity;
+float dhtTemp;
 int setTime=500;
 int dt=1000;
 const int LDR1=A0;
@@ -40,7 +41,8 @@ void loop() {
 LDR1Val = (analogRead(LDR1) * 5) /1023;
 LDR2Val = (analogRead(LDR2) * 5) /1023;
 tempVal = (analogRead(tempSensor) * 500) / 1023;
-humidity=HT.readHumidity();
+humidity= HT.readHumidity();
+dhtTemp = HT.readTemperature();
 digitalWrite(trigPin,LOW);
 delayMicroseconds(10);
 digitalWrite(trigPin,HIGH);
@@ -60,12 +62,36 @@ Serial.print(",");
 //Serial.print(" Humidity: ");
 Serial.print(humidity);
 Serial.print(",");
+//Serial.print(" DHT Temperature: ");
+Serial.print(dhtTemp);
+Serial.print(",");
 //Serial.print(" Distance to Target is: ");
 Serial.print(distanceToTarget);
 //Serial.print(" in.");
 Serial.print(",");
 //Serial.print(" LDR2: ");
-Serial.println(LDR2Val);
+Serial.print(LDR2Val);
+
+Serial.print(";");
+
+//Serial.print("LDR1: ");
+Serial.print(LDR1Val);
+Serial.print(",");
+//Serial.print(" LDR2: ");
+Serial.print(LDR2Val);
+Serial.print(",");
+//Serial.print(" Humidity: ");
+Serial.print(humidity);
+Serial.print(",");
+//Serial.print(" DHT Temperature: ");
+Serial.print(dhtTemp);
+Serial.print(",");
+//Serial.print(" Distance to Target is: ");
+Serial.print(distanceToTarget);
+//Serial.print(" in.");
+Serial.print(",");
+//Serial.print(" Temperature: ");
+Serial.println(tempVal);
 
 if (Serial.available() > 0){
   command = Serial.read();
