@@ -12,8 +12,9 @@
 #     MDDropDownItem:
 #         id: drop_item
 #         pos_hint: {'center_x': .5, 'center_y': .5}
-#         text: 'Pond 1'
+#         text: 'Item 1'
 #         on_release: app.menu.open()
+
 # '''
 
 # class Test(MDApp):
@@ -45,27 +46,78 @@
 
 # Test().run()
 
+# from kivy.lang import Builder
+
+# from kivymd.app import MDApp
+# from kivymd.uix.list import OneLineListItem
+
+# KV = '''
+# ScrollView:
+
+#     MDList:
+#         id: container
+# '''
+
+
+# class Test(MDApp):
+#     def build(self):
+#         return Builder.load_string(KV)
+
+#     def on_start(self):
+#         for i in range(5):
+#             self.root.ids.container.add_widget(
+#                 OneLineListItem(text=f"Single-line item {i}")
+#             )
+
+# Test().run()
+
 from kivy.lang import Builder
+from kivy.properties import StringProperty
 
 from kivymd.app import MDApp
-from kivymd.uix.list import OneLineListItem
+from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
+from kivymd.uix.selectioncontrol import MDCheckbox
+from kivymd.icon_definitions import md_icons
+
 
 KV = '''
-ScrollView:
+<ListItemWithCheckbox>:
 
-    MDList:
-        id: container
+    IconLeftWidget:
+        icon: root.icon
+
+    RightCheckbox:
+
+MDScreen:
+    MDBoxLayout:
+
+        ScrollView:
+
+            MDList:
+                id: scroll
 '''
 
 
-class Test(MDApp):
+class ListItemWithCheckbox(OneLineAvatarIconListItem):
+    '''Custom list item.'''
+
+    icon = StringProperty("android")
+
+
+class RightCheckbox(IRightBodyTouch, MDCheckbox):
+    '''Custom right container.'''
+
+
+class MainApp(MDApp):
     def build(self):
         return Builder.load_string(KV)
 
     def on_start(self):
-        for i in range(5):
-            self.root.ids.container.add_widget(
-                OneLineListItem(text=f"Single-line item {i}")
+        icons = list(md_icons.keys())
+        for i in range(30):
+            self.root.ids.scroll.add_widget(
+                ListItemWithCheckbox(text=f"Item {i}", icon=icons[i])
             )
 
-Test().run()
+
+MainApp().run()
