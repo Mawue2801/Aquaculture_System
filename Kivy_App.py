@@ -1,3 +1,4 @@
+from kivy.uix.screenmanager import ScreenManager
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.core.window import Window
@@ -8,327 +9,33 @@ import serial
 import serial.tools.list_ports
 from kivy.clock import Clock
 from kivy.metrics import dp
-from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.list import OneLineListItem
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty
+from kivy.properties import StringProperty
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
-from kivymd.uix.selectioncontrol import MDCheckbox
-from kivymd.uix.datatables import MDDataTable
-from kivymd.icon_definitions import md_icons
+from kivymd.uix.list import OneLineAvatarIconListItem
+from kivymd.toast import toast
+from kivy.uix.boxlayout import BoxLayout
 
 Window.size = (800,480)
 
-KV = """
 
-<ListItemWithCheckbox>:
-
-    IconLeftWidget:
-        icon: root.icon
-
-    IconRightWidget:
-        icon: "delete"
-        on_release: app.remove_widget(root)
-
-
-MDScreen:
-    BoxLayout:
-        orientation: 'vertical'
-
-        MDBottomNavigation:
-
-            MDBottomNavigationItem:
-                name: 'screen 1'
-                text: "Sensor Values"
-                icon: 'monitor-dashboard'
-
-                MDLabel:
-                    text: "Pond of Focus:"
-                    font_style: "Subtitle1"
-                    pos_hint: {"center_x": 0.575, "center_y": 0.9}
-
-                MDDropDownItem:
-                    id: pond_selection
-                    pos_hint: {'center_x': 0.275, 'center_y': 0.9}
-                    text: 'Pond 1'
-                    on_release: app.menu.open()
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "8dp"
-                    size_hint: 0.25 , 0.25
-                    pos_hint: {"center_x": 0.2, "center_y": 0.6}
-
-                    MDLabel:
-                        text: "Dissolved Oxygen"
-                        theme_text_color: "Secondary"
-                        text_color: (0,0,1,1)
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    MDSeparator:
-                        height: "1dp"
-
-                    BoxLayout:
-                        orientation:"horizontal"
-
-                        MDLabel:
-                            text: ""
-
-                        MDLabel:
-                            id: do_label
-                            text: "00.00"
-                            font_style: "H4"
-                
-                MDCard:
-                    orientation: "vertical"
-                    padding: "8dp"
-                    size_hint: 0.25 , 0.25
-                    pos_hint: {"center_x": 0.5, "center_y": 0.6}
-
-
-                    MDLabel:
-                        text: "Temperature"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    MDSeparator:
-                        height: "1dp"
-
-                    BoxLayout:
-                        orientation:"horizontal"
-
-                        MDLabel:
-                            text: ""
-
-                        MDLabel:
-                            id: temp_label
-                            text: "00.00"
-                            font_style: "H4"
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "8dp"
-                    size_hint: 0.25 , 0.25
-                    pos_hint: {"center_x": 0.8, "center_y": 0.6}
-
-
-                    MDLabel:
-                        text: "pH"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    MDSeparator:
-                        height: "1dp"
-
-                    BoxLayout:
-                        orientation:"horizontal"
-
-                        MDLabel:
-                            text: ""
-
-                        MDLabel:
-                            id: pH_label
-                            text: "00.00"
-                            font_style: "H4"
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "8dp"
-                    size_hint: 0.25 , 0.25
-                    pos_hint: {"center_x": 0.2, "center_y": 0.3}
-
-
-                    MDLabel:
-                        text: "Water Level"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    MDSeparator:
-                        height: "1dp"
-
-                    BoxLayout:
-                        orientation:"horizontal"
-
-                        MDLabel:
-                            text: ""
-
-                        MDLabel:
-                            id: water_level_label
-                            text: "00.00"
-                            font_style: "H4"
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "8dp"
-                    size_hint: 0.25 , 0.25
-                    pos_hint: {"center_x": 0.5, "center_y": 0.3}
-
-
-                    MDLabel:
-                        text: "Turbidity"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    MDSeparator:
-                        height: "1dp"
-
-                    BoxLayout:
-                        orientation:"horizontal"
-
-                        MDLabel:
-                            text: ""
-
-                        MDLabel:
-                            id: turbidity_label
-                            text: "00.00"
-                            font_style: "H4"
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "8dp"
-                    size_hint: 0.25 , 0.25
-                    pos_hint: {"center_x": 0.8, "center_y": 0.3}
-
-
-                    MDLabel:
-                        text: "Electrical Conductivity"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    MDSeparator:
-                        height: "1dp"
-
-                    BoxLayout:
-                        orientation:"horizontal"
-
-                        MDLabel:
-                            text: ""
-
-                        MDLabel:
-                            id: conductivity_label
-                            text: "00.00"
-                            font_style: "H4"
-
-            MDBottomNavigationItem:
-                name: 'screen 2'
-                text: "Feeding"
-                icon: 'grain'
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "5dp"
-                    size_hint: 0.95 , 0.2
-                    pos_hint: {"center_x": 0.5, "center_y": 0.875}
-
-                    BoxLayout:
-                        orientation:"horizontal"
-                        padding:"10dp"
-
-                        MDLabel:
-                            id: week_label
-                            text: "Week 1"
-                            font_style: "H4"
-                
-                        MDLabel:
-                            text: ""
-                            font_style: "H1"
-                        
-                        MDLabel:
-                            text: ""
-                            font_style: "H1"
-
-                        MDLabel:
-                            text: ""
-                            font_style: "H1"
-                        
-                        MDLabel:
-                            text: ""
-                            font_style: "H1"
-
-                        BoxLayout:
-                            orientation:"vertical"
-                        
-                            MDLabel:
-                                id: time_label
-                                text: ""
-                                font_style: "H5"
-
-                            MDLabel:
-                                id: date_label
-                                text: ""
-                                font_style: "Subtitle1"
-                                theme_text_color: "Secondary"
-
-                MDCard:
-                    orientation: "vertical"
-                    padding: "5dp"
-                    size_hint: 0.4 , 0.4
-                    pos_hint: {"center_x": 0.23, "center_y": 0.5}
-
-                    MDBoxLayout:
-
-                        ScrollView:
-
-                            MDList:
-                                id: feeding_time_list
-
-                MDRectangleFlatButton:
-                    text: "Open Time Picker"
-                    size_hint: 0.4 , 0.075
-                    pos_hint: {'center_x': 0.23, 'center_y': 0.21}
-                    on_release: app.show_time_picker()
-
-                MDLabel:
-                    id: feeding_time_label
-                    text: "00:00:00"
-                    pos_hint: {'center_x': 0.6, 'center_y': 0.1}
-                    font_style: "H4"
-
-                MDRaisedButton:
-                    text: "Add To List"
-                    pos_hint: {'center_x': 0.37, 'center_y': 0.1}
-                    on_release: app.add_to_list()
-
-
-            MDBottomNavigationItem:
-                name: 'screen 3'
-                text: "History"
-                icon: 'history'
-
-                # MDLabel:
-                #     text: "History"
-                #     halign: 'center'
-
-                ScrollView:
-
-                    MDList:
-                        id: history_list
-
-
-            MDBottomNavigationItem:
-                name: 'screen 4'
-                text: "Settings"
-                icon: 'cog'
-
-                MDLabel:
-                    text: "Settings"
-                    halign: 'center'
-"""
 class ListItemWithCheckbox(OneLineAvatarIconListItem):
     icon = StringProperty("delete")
 
+class Content(BoxLayout):
+    pass
+
 class Example(MDApp):
+    dialog = None
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.screen = Builder.load_string(KV)
+        global screen_manager
+        screen_manager = ScreenManager()
+        screen_manager.add_widget(Builder.load_file("MainScreen.kv"))
+        screen_manager.add_widget(Builder.load_file("LoginScreen.kv"))
         self.selected_pond = "1"
+        self.username = "smart aquapak"
+        self.password = "fish1234"
         menu_items = [
             {
                 "viewclass": "OneLineListItem",
@@ -338,7 +45,7 @@ class Example(MDApp):
             } for i in range(1,3)
         ]
         self.menu = MDDropdownMenu(
-            caller=self.screen.ids.pond_selection,
+            caller=screen_manager.get_screen("MainScreen").ids.pond_selection,
             items=menu_items,
             width_mult=4,
         )
@@ -347,7 +54,7 @@ class Example(MDApp):
 
 
     def set_item(self, text_item):
-        self.screen.ids.pond_selection.set_item(text_item)
+        screen_manager.get_screen("MainScreen").ids.pond_selection.set_item(text_item)
         self.selected_pond = text_item.split(" ")[1]
         self.menu.dismiss()
 
@@ -367,18 +74,39 @@ class Example(MDApp):
             print('Connection Issue!')
         #Clock.schedule_interval(self.update, 1)
         Clock.schedule_interval(self.update_time, 1)
-        return self.screen
+        
+        return screen_manager
 
+    def log_in(self):
+        if self.root.get_screen("LoginScreen").ids.user.text == self.username and self.root.get_screen("LoginScreen").ids.password.text == self.password:
+           name = self.root.get_screen("LoginScreen").ids.user.text
+           toast(f"Welcome {name}")
+           screen_manager.current = "MainScreen" 
+           self.root.get_screen("LoginScreen").ids.user.text = ""
+           self.root.get_screen("LoginScreen").ids.password.text = ""
+        
+        elif self.root.get_screen("LoginScreen").ids.user.text != self.username and self.root.get_screen("LoginScreen").ids.password.text == self.password:
+            toast("Incorrect Username")
+        
+        elif self.root.get_screen("LoginScreen").ids.user.text == self.username and self.root.get_screen("LoginScreen").ids.password.text != self.password:
+            toast("Incorrect Password")
+
+        else:
+            toast("Incorrect Username and Password")
+
+    def log_out(self):
+        screen_manager.current = "LoginScreen"
+    
     def get_time(self,instance,time):
-        self.root.ids.feeding_time_label.text = str(time)
+        self.root.get_screen("MainScreen").ids.feeding_time_label.text = str(time)
     
     def add_to_list(self):
         time_dict = {"00":"twelve","01":"one","02":"two","03":"three","04":"four","05":"five","06":"six",
                     "07":"seven","08":"eight","09":"nine","10":"ten","11":"eleven","12":"twelve","13":"one",
                     "14":"two","15":"three","16":"four","17":"five","18":"six","19":"seven","20":"eight",
                     "21":"nine","22":"ten","23":"eleven"}
-        time = self.root.ids.feeding_time_label.text
-        self.root.ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{time_dict[time[0:2]]}-outline"))
+        time = self.root.get_screen("MainScreen").ids.feeding_time_label.text
+        self.root.get_screen("MainScreen").ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{time_dict[time[0:2]]}-outline"))
         self.feedingList.append(time)
 
     def show_time_picker(self):
@@ -389,12 +117,12 @@ class Example(MDApp):
     def update_time(self, *args):
         now = datetime.now()
         dt_string = now.strftime("%b-%d-%Y %H:%M:%S").split(" ")
-        self.root.ids.date_label.text = dt_string[0]
-        self.root.ids.time_label.text = dt_string[1]
-        #self.root.ids.history_list.add_widget(OneLineListItem(text=f"Time change {dt_string[1]}"))
+        self.root.get_screen("MainScreen").ids.date_label.text = dt_string[0]
+        self.root.get_screen("MainScreen").ids.time_label.text = dt_string[1]
+        #self.root.get_screen("MainScreen").ids.history_list.add_widget(OneLineListItem(text=f"Time change {dt_string[1]}"))
     
     def remove_widget(self,widget):
-        self.root.ids.feeding_time_list.remove_widget(widget)
+        self.root.get_screen("MainScreen").ids.feeding_time_list.remove_widget(widget)
         self.feedingList.remove(widget.text)
         print(self.feedingList)
         
@@ -404,17 +132,58 @@ class Example(MDApp):
     #     data = str(arduino.readline(arduino.inWaiting()).decode()).split(";")
     #     try:
     #         data = data[int(self.selected_pond)-1].split(",")
-    #         self.root.ids.do_label.text = data[0]
-    #         self.root.ids.temp_label.text = data[1]
-    #         self.root.ids.pH_label.text = data[2]
-    #         self.root.ids.water_level_label.text = data[3]
-    #         self.root.ids.turbidity_label.text = data[4]
-    #         self.root.ids.conductivity_label.text = data[5].replace("\r\n","")
+    #         self.root.get_screen("MainScreen").ids.do_label.text = data[0]
+    #         self.root.get_screen("MainScreen").ids.temp_label.text = data[1]
+    #         self.root.get_screen("MainScreen").ids.pH_label.text = data[2]
+    #         self.root.get_screen("MainScreen").ids.water_level_label.text = data[3]
+    #         self.root.get_screen("MainScreen").ids.turbidity_label.text = data[4]
+    #         self.root.get_screen("MainScreen").ids.conductivity_label.text = data[5].replace("\r\n","")
     #         print(data)
     #     except:
     #         pass
     #         print(data)
 
-Example().run()
-
+    def change_login_details_dialog(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                type="custom",
+                content_cls=Content(),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL", text_color=self.theme_cls.primary_color,on_release=self.close_dialog
+                    ),
+                    MDFlatButton(
+                        text="OK", text_color=self.theme_cls.primary_color,on_release=self.change_login_details
+                    ),
+                ],
+            )
+        self.dialog.open()
     
+    def close_dialog(self,obj):
+        self.dialog.dismiss()
+   
+    def change_login_details(self,obj):
+        if self.dialog.content_cls.ids.old_password.text == self.password:
+            if self.dialog.content_cls.ids.new_password.text == self.dialog.content_cls.ids.confirm_password.text:
+                self.username = self.dialog.content_cls.ids.new_username.text
+                self.password = self.dialog.content_cls.ids.new_password.text
+                toast("Login Credentials Changed")
+                self.dialog.dismiss()
+                self.dialog.content_cls.ids.old_password.text = ""
+                self.dialog.content_cls.ids.new_username.text = ""
+                self.dialog.content_cls.ids.new_password.text = ""
+                self.dialog.content_cls.ids.confirm_password.text = ""
+            else:
+                self.dialog.content_cls.ids.confirm_password.text = ""
+                toast("Re-enter Confirmatory Password")
+        else:
+            self.dialog.content_cls.ids.old_password.text = ""
+            toast("Invalid Old Password")
+
+    def on_switch_active(self, instance, value):
+        if value:
+            self.theme_cls.theme_style = "Dark"
+        else:
+            self.theme_cls.theme_style = "Light"
+
+Example().run()

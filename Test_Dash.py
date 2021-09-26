@@ -71,53 +71,113 @@
 
 # Test().run()
 
+# from kivy.lang import Builder
+# from kivy.properties import StringProperty
+
+# from kivymd.app import MDApp
+# from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
+# from kivymd.uix.selectioncontrol import MDCheckbox
+# from kivymd.icon_definitions import md_icons
+
+
+# KV = '''
+# <ListItemWithCheckbox>:
+
+#     IconLeftWidget:
+#         icon: root.icon
+
+#     RightCheckbox:
+
+# MDScreen:
+#     MDBoxLayout:
+
+#         ScrollView:
+
+#             MDList:
+#                 id: scroll
+# '''
+
+
+# class ListItemWithCheckbox(OneLineAvatarIconListItem):
+#     '''Custom list item.'''
+
+#     icon = StringProperty("android")
+
+
+# class RightCheckbox(IRightBodyTouch, MDCheckbox):
+#     '''Custom right container.'''
+
+
+# class MainApp(MDApp):
+#     def build(self):
+#         return Builder.load_string(KV)
+
+#     def on_start(self):
+#         icons = list(md_icons.keys())
+#         for i in range(30):
+#             self.root.ids.scroll.add_widget(
+#                 ListItemWithCheckbox(text=f"Item {i}", icon=icons[i])
+#             )
+
+
+# MainApp().run()
+
 from kivy.lang import Builder
-from kivy.properties import StringProperty
+from kivy.uix.boxlayout import BoxLayout
 
 from kivymd.app import MDApp
-from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
-from kivymd.uix.selectioncontrol import MDCheckbox
-from kivymd.icon_definitions import md_icons
-
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
 
 KV = '''
-<ListItemWithCheckbox>:
+<Content>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
 
-    IconLeftWidget:
-        icon: root.icon
+    MDTextField:
+        hint_text: "City"
 
-    RightCheckbox:
+    MDTextField:
+        hint_text: "Street"
 
-MDScreen:
-    MDBoxLayout:
 
-        ScrollView:
+MDFloatLayout:
 
-            MDList:
-                id: scroll
+    MDFlatButton:
+        text: "ALERT DIALOG"
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        on_release: app.show_confirmation_dialog()
 '''
 
 
-class ListItemWithCheckbox(OneLineAvatarIconListItem):
-    '''Custom list item.'''
-
-    icon = StringProperty("android")
+class Content(BoxLayout):
+    pass
 
 
-class RightCheckbox(IRightBodyTouch, MDCheckbox):
-    '''Custom right container.'''
+class Example(MDApp):
+    dialog = None
 
-
-class MainApp(MDApp):
     def build(self):
         return Builder.load_string(KV)
 
-    def on_start(self):
-        icons = list(md_icons.keys())
-        for i in range(30):
-            self.root.ids.scroll.add_widget(
-                ListItemWithCheckbox(text=f"Item {i}", icon=icons[i])
+    def show_confirmation_dialog(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                title="Address:",
+                type="custom",
+                content_cls=Content(),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL", text_color=self.theme_cls.primary_color
+                    ),
+                    MDFlatButton(
+                        text="OK", text_color=self.theme_cls.primary_color
+                    ),
+                ],
             )
+        self.dialog.open()
 
 
-MainApp().run()
+Example().run()

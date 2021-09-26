@@ -1,0 +1,40 @@
+MDScreen:
+    name: "LoginScreen"
+    #md_bg_color: [158/255, 231/255, 1, 1]
+
+    #Image:
+        #source: "Background.jpg"
+        #size_hint: 5 , 5
+        #pos_hint: {"center_x": 0, "center_y": 1}
+
+    MDCard:
+        orientation: "vertical"
+        padding: "8dp"
+        size_hint: 0.4 , 0.7
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+        FloatLayout:
+        
+            Image:
+                source: "Logo.png"
+                pos_hint: {"center_x": 0.5, "center_y": 0.8}
+            
+            MDTextField:
+                id: user
+                hint_text: "Username"
+                icon_right: "account"
+                pos_hint: {"center_x": 0.5, "center_y": 0.55}
+
+            MDTextField:
+                id: password
+                hint_text: "Password"
+                icon_right: "eye-off"
+                pos_hint: {"center_x": 0.5, "center_y": 0.35}
+                password: True
+
+            MDRectangleFlatButton:
+                text: "Log In"
+                pos_hint: {"center_x": 0.5, "center_y": 0.1}
+                on_release: app.log_in()
+            
+

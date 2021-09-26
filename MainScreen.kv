@@ -1,0 +1,352 @@
+<ListItemWithCheckbox>:
+
+    IconLeftWidget:
+        icon: root.icon
+
+    IconRightWidget:
+        icon: "delete"
+        on_release: app.remove_widget(root)
+
+<Content>
+    orientation: "vertical"
+    size_hint_y: None
+    height: "175dp"
+
+    MDTextField:
+        id: old_password
+        hint_text: "Old Password"
+        password: True
+
+    MDTextField:
+        id: new_username
+        hint_text: "New Username"
+
+    MDTextField:
+        id: new_password
+        hint_text: "New Password"
+        password: True
+
+    MDTextField:
+        id: confirm_password
+        hint_text: "Confirm Password"
+        password: True
+
+
+MDScreen:
+    name: "MainScreen"
+    BoxLayout:
+        orientation: 'vertical'
+
+        MDBottomNavigation:
+
+            MDBottomNavigationItem:
+                name: 'screen 1'
+                text: "Sensor Values"
+                icon: 'monitor-dashboard'
+
+                MDRectangleFlatButton:
+                    text: "Log Out"
+                    pos_hint: {'center_x': 0.8, 'center_y': 0.91}
+                    on_release: app.log_out()
+                    
+                MDLabel:
+                    text: "Pond of Focus:"
+                    font_style: "Subtitle1"
+                    pos_hint: {"center_x": 0.575, "center_y": 0.9}
+
+                MDDropDownItem:
+                    id: pond_selection
+                    pos_hint: {'center_x': 0.275, 'center_y': 0.9}
+                    text: 'Pond 1'
+                    on_release: app.menu.open()
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "8dp"
+                    size_hint: 0.25 , 0.25
+                    pos_hint: {"center_x": 0.2, "center_y": 0.6}
+
+                    MDLabel:
+                        text: "Dissolved Oxygen"
+                        theme_text_color: "Secondary"
+                        text_color: (0,0,1,1)
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: do_label
+                            text: "00.00"
+                            font_style: "H4"
+                
+                MDCard:
+                    orientation: "vertical"
+                    padding: "8dp"
+                    size_hint: 0.25 , 0.25
+                    pos_hint: {"center_x": 0.5, "center_y": 0.6}
+
+
+                    MDLabel:
+                        text: "Temperature"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: temp_label
+                            text: "00.00"
+                            font_style: "H4"
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "8dp"
+                    size_hint: 0.25 , 0.25
+                    pos_hint: {"center_x": 0.8, "center_y": 0.6}
+
+
+                    MDLabel:
+                        text: "pH"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: pH_label
+                            text: "00.00"
+                            font_style: "H4"
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "8dp"
+                    size_hint: 0.25 , 0.25
+                    pos_hint: {"center_x": 0.2, "center_y": 0.3}
+
+
+                    MDLabel:
+                        text: "Water Level"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: water_level_label
+                            text: "00.00"
+                            font_style: "H4"
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "8dp"
+                    size_hint: 0.25 , 0.25
+                    pos_hint: {"center_x": 0.5, "center_y": 0.3}
+
+
+                    MDLabel:
+                        text: "Turbidity"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: turbidity_label
+                            text: "00.00"
+                            font_style: "H4"
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "8dp"
+                    size_hint: 0.25 , 0.25
+                    pos_hint: {"center_x": 0.8, "center_y": 0.3}
+
+
+                    MDLabel:
+                        text: "Electrical Conductivity"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: conductivity_label
+                            text: "00.00"
+                            font_style: "H4"
+
+            MDBottomNavigationItem:
+                name: 'screen 2'
+                text: "Feeding"
+                icon: 'grain'
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "5dp"
+                    size_hint: 0.95 , 0.2
+                    pos_hint: {"center_x": 0.5, "center_y": 0.875}
+
+                    BoxLayout:
+                        orientation:"horizontal"
+                        padding:"10dp"
+
+                        MDLabel:
+                            id: week_label
+                            text: "Week 1"
+                            font_style: "H4"
+                
+                        MDLabel:
+                            text: ""
+                            font_style: "H1"
+                        
+                        MDLabel:
+                            text: ""
+                            font_style: "H1"
+
+                        MDLabel:
+                            text: ""
+                            font_style: "H1"
+                        
+                        MDLabel:
+                            text: ""
+                            font_style: "H1"
+
+                        BoxLayout:
+                            orientation:"vertical"
+                        
+                            MDLabel:
+                                id: time_label
+                                text: ""
+                                font_style: "H5"
+
+                            MDLabel:
+                                id: date_label
+                                text: ""
+                                font_style: "Subtitle1"
+                                theme_text_color: "Secondary"
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "5dp"
+                    size_hint: 0.4 , 0.4
+                    pos_hint: {"center_x": 0.23, "center_y": 0.5}
+
+                    MDBoxLayout:
+
+                        ScrollView:
+
+                            MDList:
+                                id: feeding_time_list
+
+                MDRectangleFlatButton:
+                    text: "Open Time Picker"
+                    size_hint: 0.4 , 0.075
+                    pos_hint: {'center_x': 0.23, 'center_y': 0.21}
+                    on_release: app.show_time_picker()
+
+                MDLabel:
+                    id: feeding_time_label
+                    text: "00:00:00"
+                    pos_hint: {'center_x': 0.6, 'center_y': 0.1}
+                    font_style: "H4"
+
+                MDRaisedButton:
+                    text: "Add To List"
+                    pos_hint: {'center_x': 0.37, 'center_y': 0.1}
+                    on_release: app.add_to_list()
+
+
+            MDBottomNavigationItem:
+                name: 'screen 3'
+                text: "History"
+                icon: 'history'
+
+                ScrollView:
+
+                    MDList:
+                        id: history_list
+
+
+            MDBottomNavigationItem:
+                name: 'screen 4'
+                text: "Settings"
+                icon: 'cog'
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "5dp"
+                    size_hint: 0.75 , 0.3
+                    pos_hint: {"center_x": 0.5, "center_y": 0.75}
+
+                    FloatLayout:
+                        orientation:"horizontal"
+                    
+                        MDLabel:
+                            text: "Change your current username and password"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDRectangleFlatButton:
+                            text: "Change Login Credentials"
+                            pos_hint: {'center_x': 0.8, 'center_y': 0.5}
+                            on_release: app.change_login_details_dialog()
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    FloatLayout:
+                        orientation:"horizontal"
+                    
+                        MDLabel:
+                            text: "Switch to Dark Mode"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDSwitch:
+                            pos_hint: {'center_x': 0.8, 'center_y': 0.5}
+                            on_active: app.on_switch_active(*args)
