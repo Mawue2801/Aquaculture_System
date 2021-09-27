@@ -95,20 +95,17 @@ Serial.println(tempVal);
 
 if (Serial.available() > 0){
   command = Serial.read();
-  if (command == 'r'){
+  if (command == 'R'){
     digitalWrite(redLED,HIGH);
-    digitalWrite(blueLED,LOW);
-    digitalWrite(greenLED,LOW);
   }
-  else if (command == 'b'){
-    digitalWrite(redLED,LOW);
+  if (command == 'B'){
     digitalWrite(blueLED,HIGH);
-    digitalWrite(greenLED,LOW);
   }
-  else if (command == 'g'){
-    digitalWrite(redLED,LOW);
-    digitalWrite(blueLED,LOW);
+  if (command == 'G'){
     digitalWrite(greenLED,HIGH);
+  }
+  if (command == 'r'){
+    digitalWrite(redLED,LOW);
   }
 }
 

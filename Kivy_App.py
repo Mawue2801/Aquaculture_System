@@ -15,9 +15,9 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.toast import toast
 from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.list import TwoLineListItem
 
 Window.size = (800,480)
-
 
 class ListItemWithCheckbox(OneLineAvatarIconListItem):
     icon = StringProperty("delete")
@@ -36,6 +36,7 @@ class Example(MDApp):
         self.selected_pond = "1"
         self.username = "smart aquapak"
         self.password = "fish1234"
+        self.RedStatus = 0
         menu_items = [
             {
                 "viewclass": "OneLineListItem",
@@ -59,7 +60,6 @@ class Example(MDApp):
         self.menu.dismiss()
 
     def build(self):
-        # self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Blue"
         try:
             ports = serial.tools.list_ports.comports()
@@ -72,7 +72,7 @@ class Example(MDApp):
                     print('Connected to ' + commPort)
         except:
             print('Connection Issue!')
-        #Clock.schedule_interval(self.update, 1)
+        Clock.schedule_interval(self.update, 1)
         Clock.schedule_interval(self.update_time, 1)
         
         return screen_manager
@@ -84,15 +84,9 @@ class Example(MDApp):
            screen_manager.current = "MainScreen" 
            self.root.get_screen("LoginScreen").ids.user.text = ""
            self.root.get_screen("LoginScreen").ids.password.text = ""
-        
-        elif self.root.get_screen("LoginScreen").ids.user.text != self.username and self.root.get_screen("LoginScreen").ids.password.text == self.password:
-            toast("Incorrect Username")
-        
-        elif self.root.get_screen("LoginScreen").ids.user.text == self.username and self.root.get_screen("LoginScreen").ids.password.text != self.password:
-            toast("Incorrect Password")
 
         else:
-            toast("Incorrect Username and Password")
+            toast("Invalid Username or Password")
 
     def log_out(self):
         screen_manager.current = "LoginScreen"
@@ -117,9 +111,10 @@ class Example(MDApp):
     def update_time(self, *args):
         now = datetime.now()
         dt_string = now.strftime("%b-%d-%Y %H:%M:%S").split(" ")
+        self.date = dt_string[0]
+        self.time = dt_string[1]
         self.root.get_screen("MainScreen").ids.date_label.text = dt_string[0]
         self.root.get_screen("MainScreen").ids.time_label.text = dt_string[1]
-        #self.root.get_screen("MainScreen").ids.history_list.add_widget(OneLineListItem(text=f"Time change {dt_string[1]}"))
     
     def remove_widget(self,widget):
         self.root.get_screen("MainScreen").ids.feeding_time_list.remove_widget(widget)
@@ -127,21 +122,34 @@ class Example(MDApp):
         print(self.feedingList)
         
     
-    # def update(self, *args):
-    #     arduino = self.arduino
-    #     data = str(arduino.readline(arduino.inWaiting()).decode()).split(";")
-    #     try:
-    #         data = data[int(self.selected_pond)-1].split(",")
-    #         self.root.get_screen("MainScreen").ids.do_label.text = data[0]
-    #         self.root.get_screen("MainScreen").ids.temp_label.text = data[1]
-    #         self.root.get_screen("MainScreen").ids.pH_label.text = data[2]
-    #         self.root.get_screen("MainScreen").ids.water_level_label.text = data[3]
-    #         self.root.get_screen("MainScreen").ids.turbidity_label.text = data[4]
-    #         self.root.get_screen("MainScreen").ids.conductivity_label.text = data[5].replace("\r\n","")
-    #         print(data)
-    #     except:
-    #         pass
-    #         print(data)
+    def update(self, *args):
+        arduino = self.arduino
+        data = str(arduino.readline(arduino.inWaiting()).decode()).split(";")
+        try:
+            data = data[int(self.selected_pond)-1].split(",")
+            self.root.get_screen("MainScreen").ids.do_label.text = data[0]
+            self.root.get_screen("MainScreen").ids.temp_label.text = data[1]
+            self.root.get_screen("MainScreen").ids.pH_label.text = data[2]
+            self.root.get_screen("MainScreen").ids.water_level_label.text = data[3]
+            self.root.get_screen("MainScreen").ids.turbidity_label.text = data[4]
+            salinityLevel = (float(data[5].replace("\r\n",""))**1.0878)*466.5
+            self.root.get_screen("MainScreen").ids.conductivity_label.text = str(salinityLevel)
+            if len(data) == 6:
+                if float(data[0]) < 4 and self.RedStatus == 0:
+                    arduino.write(b"R")
+                    self.RedStatus = 1
+                    CurrentDate = self.date
+                    CurrentTime = self.time
+                    self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned On",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
+                if float(data[0]) > 3 and self.RedStatus == 1 :
+                    arduino.write(b"r")
+                    self.RedStatus = 0
+                    CurrentDate = self.date
+                    CurrentTime = self.time
+                    self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned Off",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
+                    
+        except:
+            pass
 
     def change_login_details_dialog(self):
         if not self.dialog:
