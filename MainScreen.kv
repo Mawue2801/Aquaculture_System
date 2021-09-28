@@ -7,7 +7,7 @@
         icon: "delete"
         on_release: app.remove_widget(root)
 
-<Content>
+<CredentialsContent>
     orientation: "vertical"
     size_hint_y: None
     height: "175dp"
@@ -30,7 +30,6 @@
         id: confirm_password
         hint_text: "Confirm Password"
         password: True
-
 
 MDScreen:
     name: "MainScreen"
@@ -58,7 +57,7 @@ MDScreen:
                     id: pond_selection
                     pos_hint: {'center_x': 0.275, 'center_y': 0.9}
                     text: 'Pond 1'
-                    on_release: app.menu.open()
+                    on_release: app.pond_menu.open()
 
                 MDCard:
                     orientation: "vertical"
@@ -67,7 +66,7 @@ MDScreen:
                     pos_hint: {"center_x": 0.2, "center_y": 0.6}
 
                     MDLabel:
-                        text: "Dissolved Oxygen"
+                        text: "Dissolved Oxygen (mg/L)"
                         theme_text_color: "Secondary"
                         text_color: (0,0,1,1)
                         size_hint_y: None
@@ -95,7 +94,7 @@ MDScreen:
 
 
                     MDLabel:
-                        text: "Temperature"
+                        text: u"Temperature (\N{DEGREE SIGN}C)"
                         theme_text_color: "Secondary"
                         size_hint_y: None
                         height: self.texture_size[1]
@@ -149,7 +148,7 @@ MDScreen:
 
 
                     MDLabel:
-                        text: "Water Level"
+                        text: "Water Level (m)"
                         theme_text_color: "Secondary"
                         size_hint_y: None
                         height: self.texture_size[1]
@@ -176,7 +175,7 @@ MDScreen:
 
 
                     MDLabel:
-                        text: "Turbidity"
+                        text: "Turbidity (NTU)"
                         theme_text_color: "Secondary"
                         size_hint_y: None
                         height: self.texture_size[1]
@@ -203,7 +202,7 @@ MDScreen:
 
 
                     MDLabel:
-                        text: "Salinity"
+                        text: "Salinity (mg/L)"
                         theme_text_color: "Secondary"
                         size_hint_y: None
                         height: self.texture_size[1]
@@ -316,17 +315,16 @@ MDScreen:
 
             MDBottomNavigationItem:
                 name: 'screen 4'
-                text: "Settings"
-                icon: 'cog'
+                text: "App Settings"
+                icon: 'application-settings'
 
                 MDCard:
                     orientation: "vertical"
                     padding: "5dp"
-                    size_hint: 0.75 , 0.3
-                    pos_hint: {"center_x": 0.5, "center_y": 0.75}
+                    size_hint: 0.75 , 0.4
+                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
                     FloatLayout:
-                        orientation:"horizontal"
                     
                         MDLabel:
                             text: "Change your current username and password"
@@ -341,7 +339,21 @@ MDScreen:
                         height: "1dp"
 
                     FloatLayout:
-                        orientation:"horizontal"
+                    
+                        MDLabel:
+                            text: "Email"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDTextField:
+                            id: email
+                            hint_text: "Enter address here"
+                            size_hint_x: 0.45
+                            pos_hint: {'center_x': 0.75, 'center_y': 0.4}
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    FloatLayout:
                     
                         MDLabel:
                             text: "Switch to Dark Mode"
@@ -350,3 +362,135 @@ MDScreen:
                         MDSwitch:
                             pos_hint: {'center_x': 0.8, 'center_y': 0.5}
                             on_active: app.on_switch_active(*args)
+
+                
+            MDBottomNavigationItem:
+                name: 'screen 5'
+                text: "System Settings"
+                icon: 'cog'
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "5dp"
+                    size_hint: 0.75 , 0.1
+                    pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
+                    FloatLayout:
+
+                        MDLabel:
+                            text: "Select Species of Interest"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDDropDownItem:
+                            id: species_selection
+                            pos_hint: {'center_x': 0.8, 'center_y': 0.5}
+                            text: 'Nile Tilapia'
+                            on_release: app.species_menu.open()
+                        
+                MDLabel:
+                    text: "Thresholds"
+                    pos_hint: {'center_x': 0.63, 'center_y': 0.8}
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "5dp"
+                    size_hint: 0.75 , 0.5
+                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                    FloatLayout:
+                    
+                        MDLabel:
+                            text: "Dissolved Oxygen (mg/L)"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDTextField:
+                            id: minDO
+                            hint_text: "Min Value"
+                            text: "4"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.6, 'center_y': 0.4}
+                            input_filter: "float"
+
+                        MDTextField:
+                            id: maxDO
+                            hint_text: "Max Value"
+                            text: "8"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.9, 'center_y': 0.4}
+                            input_filter: "float"
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    FloatLayout:
+                    
+                        MDLabel:
+                            text: u"Temperature (\N{DEGREE SIGN}C)"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDTextField:
+                            id: minTemp
+                            hint_text: "Min Value"
+                            text: "12"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.6, 'center_y': 0.4}
+                            input_filter: "float"
+
+                        MDTextField:
+                            id: maxTemp
+                            hint_text: "Max Value"
+                            text: "42"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.9, 'center_y': 0.4}
+                            input_filter: "float"
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    FloatLayout:
+                    
+                        MDLabel:
+                            text: "pH"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDTextField:
+                            id: minpH
+                            hint_text: "Min Value"
+                            text: "7.5"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.6, 'center_y': 0.4}
+                            input_filter: "float"
+
+                        MDTextField:
+                            id: maxpH
+                            hint_text: "Max Value"
+                            text: "8.5"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.9, 'center_y': 0.4}
+                            input_filter: "float"
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    FloatLayout:
+                    
+                        MDLabel:
+                            text: "Salinity (mg/L)"
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                        MDTextField:
+                            id: minSalinity
+                            hint_text: "Min Value"
+                            text: "0"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.6, 'center_y': 0.4}
+                            input_filter: "float"
+
+                        MDTextField:
+                            id: maxSalinity
+                            hint_text: "Max Value"
+                            text: "0.5"
+                            size_hint_x: 0.1
+                            pos_hint: {'center_x': 0.9, 'center_y': 0.4}
+                            input_filter: "float"
+

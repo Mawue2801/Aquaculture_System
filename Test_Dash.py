@@ -1,183 +1,52 @@
-# from kivy.lang import Builder
-# from kivy.metrics import dp
-# from kivy.properties import StringProperty
-
-# from kivymd.uix.list import OneLineIconListItem
-# from kivymd.app import MDApp
-# from kivymd.uix.menu import MDDropdownMenu
-
-# KV = '''
-# MDScreen
-
-#     MDDropDownItem:
-#         id: drop_item
-#         pos_hint: {'center_x': .5, 'center_y': .5}
-#         text: 'Item 1'
-#         on_release: app.menu.open()
-
-# '''
-
-# class Test(MDApp):
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         self.screen = Builder.load_string(KV)
-#         menu_items = [
-#             {
-#                 "viewclass": "OneLineListItem",
-#                 "text": f"Item {i}",
-#                 "height": dp(56),
-#                 "on_release": lambda x=f"Item {i}": self.set_item(x),
-#             } for i in range(1,3)
-#         ]
-#         self.menu = MDDropdownMenu(
-#             caller=self.screen.ids.drop_item,
-#             items=menu_items,
-#             width_mult=4,
-#         )
-#         self.menu.bind()
-
-#     def set_item(self, text_item):
-#         self.screen.ids.drop_item.set_item(text_item)
-#         self.menu.dismiss()
-
-#     def build(self):
-#         return self.screen
-
-
-# Test().run()
-
-# from kivy.lang import Builder
-
-# from kivymd.app import MDApp
-# from kivymd.uix.list import OneLineListItem
-
-# KV = '''
-# ScrollView:
-
-#     MDList:
-#         id: container
-# '''
-
-
-# class Test(MDApp):
-#     def build(self):
-#         return Builder.load_string(KV)
-
-#     def on_start(self):
-#         for i in range(5):
-#             self.root.ids.container.add_widget(
-#                 OneLineListItem(text=f"Single-line item {i}")
-#             )
-
-# Test().run()
-
-# from kivy.lang import Builder
-# from kivy.properties import StringProperty
-
-# from kivymd.app import MDApp
-# from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
-# from kivymd.uix.selectioncontrol import MDCheckbox
-# from kivymd.icon_definitions import md_icons
-
-
-# KV = '''
-# <ListItemWithCheckbox>:
-
-#     IconLeftWidget:
-#         icon: root.icon
-
-#     RightCheckbox:
-
-# MDScreen:
-#     MDBoxLayout:
-
-#         ScrollView:
-
-#             MDList:
-#                 id: scroll
-# '''
-
-
-# class ListItemWithCheckbox(OneLineAvatarIconListItem):
-#     '''Custom list item.'''
-
-#     icon = StringProperty("android")
-
-
-# class RightCheckbox(IRightBodyTouch, MDCheckbox):
-#     '''Custom right container.'''
-
-
-# class MainApp(MDApp):
-#     def build(self):
-#         return Builder.load_string(KV)
-
-#     def on_start(self):
-#         icons = list(md_icons.keys())
-#         for i in range(30):
-#             self.root.ids.scroll.add_widget(
-#                 ListItemWithCheckbox(text=f"Item {i}", icon=icons[i])
-#             )
-
-
-# MainApp().run()
-
 from kivy.lang import Builder
-from kivy.uix.boxlayout import BoxLayout
 
 from kivymd.app import MDApp
-from kivymd.uix.button import MDFlatButton
-from kivymd.uix.dialog import MDDialog
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.expansionpanel import (
+    MDExpansionPanel,
+    MDExpansionPanelThreeLine,
+)
 
-KV = '''
+KV = """
 <Content>
-    orientation: "vertical"
-    spacing: "12dp"
-    size_hint_y: None
-    height: "120dp"
+    adaptive_height: True
 
-    MDTextField:
-        hint_text: "City"
+    TwoLineIconListItem:
+        text: '(050)-123-45-67'
+        secondary_text: 'Mobile'
 
-    MDTextField:
-        hint_text: "Street"
+        IconLeftWidget:
+            icon: 'phone'
 
 
-MDFloatLayout:
+ScrollView:
 
-    MDFlatButton:
-        text: "ALERT DIALOG"
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        on_release: app.show_confirmation_dialog()
-'''
+    MDList:
+        id: box
+"""
 
 
-class Content(BoxLayout):
-    pass
+class Content(MDBoxLayout):
+    """Custom content."""
 
 
 class Example(MDApp):
-    dialog = None
-
     def build(self):
         return Builder.load_string(KV)
 
-    def show_confirmation_dialog(self):
-        if not self.dialog:
-            self.dialog = MDDialog(
-                title="Address:",
-                type="custom",
-                content_cls=Content(),
-                buttons=[
-                    MDFlatButton(
-                        text="CANCEL", text_color=self.theme_cls.primary_color
+    def on_start(self):
+        for i in range(10):
+            self.root.ids.box.add_widget(
+                MDExpansionPanel(
+                    icon="data/logo/kivy-icon-512.png",
+                    content=Content(),
+                    panel_cls=MDExpansionPanelThreeLine(
+                        text="Text",
+                        secondary_text="Secondary text",
+                        tertiary_text="Tertiary text",
                     ),
-                    MDFlatButton(
-                        text="OK", text_color=self.theme_cls.primary_color
-                    ),
-                ],
+                )
             )
-        self.dialog.open()
 
 
 Example().run()

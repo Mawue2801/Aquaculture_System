@@ -30,6 +30,12 @@ MDScreen:
                 pos_hint: {"center_x": 0.5, "center_y": 0.35}
                 password: True
 
+            MDTextButton:
+                text: "Forgot Password"
+                pos_hint: {"center_x": 0.15, "center_y": 0.25}
+                on_release: app.change_password()
+                font_style: "Caption"
+
             MDRectangleFlatButton:
                 text: "Log In"
                 pos_hint: {"center_x": 0.5, "center_y": 0.1}
