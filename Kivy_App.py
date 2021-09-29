@@ -16,6 +16,8 @@ from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.toast import toast
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.list import TwoLineListItem
+from bs4 import BeautifulSoup
+import requests
 
 Window.size = (800,480)
 
@@ -237,5 +239,20 @@ class Example(MDApp):
             self.theme_cls.theme_style = "Dark"
         else:
             self.theme_cls.theme_style = "Light"
+
+    def use_meteorological_data(self, instance, value):
+        if value:
+            Clock.schedule_interval(self.fetch_meteorological_data, 1800)
+
+    def fetch_meteorological_data(self, *args):
+        html_text = requests.get("https://weather.com/weather/hourbyhour/l/Accra+Greater+Accra+Ghana?canonicalCityId=6ea38a5575bc43b7f51f1fd1416e23b944035f76b5e7f817354e76191c79a389").text
+        soup = BeautifulSoup(html_text,'lxml')
+        hours = soup.findAll('h2',class_="DetailsSummary--daypartName--2FBp2")
+        temps = soup.findAll('span', class_="DetailsSummary--tempValue--1K4ka")
+        precipitationPercentages = soup.findAll('div',class_="DetailsSummary--precip--1ecIJ")
+        wind = soup.findAll('span', class_="Wind--windWrapper--3aqXJ undefined")
+        print(hours[0].text)
+        print(precipitationPercentages[0].text)
+        
 
 Example().run()
