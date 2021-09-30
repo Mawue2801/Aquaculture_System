@@ -52,6 +52,77 @@ class Example(MDApp):
         self.RedStatus = 0
         self.feedingList = []
 
+        self.TilapiaFeeding = {
+                            1:[0.11,40,0.8,4],
+                            2:[0.18,40,1,4],
+                            4:[0.26,40,1,4],
+                            8:[0.42,40,2,4],
+                            12:[0.55,40,2,4],
+                            17:[0.73,35,3,3],
+                            24:[0.96,35,3,3],
+                            32:[1.16,35,3,3],
+                            43:[1.45,35,3,3],
+                            55:[1.70,35,3,3],
+                            68:[1.97,35,3,3],
+                            83:[2.28,35,3,3],
+                            100:[2.60,35,3,3],
+                            118:[2.84,35,3,3],
+                            137:[3.14,35,3,2],
+                            155:[3.58,32,"5 mix",2],
+                            174:[3.84,32,"5 mix",2],
+                            195:[4.28,32,"5 mix",2],
+                            215:[4.51,32,5,2],
+                            236:[4.72,32,5,2],
+                            257:[5.14,32,5,2],
+                            278:[5.42,32,5,2],
+                            299:[5.68,32,5,2],
+                            320:[5.92,32,5,2],
+                            341:[6.14,32,5,2],
+                            363:[6.53,32,5,2],
+                            384:[6.53,32,5,2],
+                            407:[6.92,32,5,2],
+                            430:[7.09,32,5,2],
+                            451:[7.21,32,5,2]
+                            }
+        self.CatfishFeeding = {
+                            10:[0.5,36,3,4],
+                            14:[0.7,36,3,4],
+                            23:[1.0,36,3,4],
+                            33:[1.3,36,3,4],
+                            45:[1.7,36,3,3],
+                            59:[2.1,36,3,3],
+                            77:[2.6,36,3,2],
+                            97:[2.9,32,3,2],
+                            122:[3.7,32,3,2],
+                            150:[4.1,32,3,2],
+                            182:[4.6,32,5,2],
+                            217:[5.2,32,5,2],
+                            252:[6.0,32,5,2],
+                            288:[5.8,32,5,2],
+                            323:[5.8,32,5,2],
+                            359:[6.5,32,5,2],
+                            395:[7.1,32,5,1],
+                            430:[6.5,32,5,1],
+                            466:[7.0,32,5,1],
+                            502:[7.5,32,5,1],
+                            537:[7.5,32,5,1],
+                            573:[8.0,32,5,1],
+                            609:[7.9,32,5,1],
+                            645:[8.4,32,5,1],
+                            680:[8.2,32,5,1],
+                            716:[8.6,32,5,1],
+                            752:[9.0,32,5,1],
+                            787:[8.7,32,5,1],
+                            823:[9.1,32,5,1],
+                            859:[9.4,32,5,1],
+                            894:[9.8,32,5,1],
+                            930:[9.3,32,5,1],
+                            966:[9.7,32,5,1],
+                            1002:[10.0,32,5,1],
+                            1037:[10.4,32,5,1],
+                            1073:[10.7,32,5,1],
+        }
+                       
         pond_menu_items = [
             {
                 "viewclass": "OneLineListItem",
@@ -161,7 +232,29 @@ class Example(MDApp):
         self.time = dt_string[1]
         self.root.get_screen("MainScreen").ids.date_label.text = dt_string[0]
         self.root.get_screen("MainScreen").ids.time_label.text = dt_string[1]
-    
+
+        weight = self.root.get_screen("MainScreen").ids.fish_weight.text
+        if weight == "":
+            weight=0
+        weight = int(weight)
+
+        if self.selected_species == "Nile Tilapia":
+            FeedingDict = self.TilapiaFeeding
+        elif self.selected_species == "Catfish":
+            FeedingDict = self.CatfishFeeding
+
+        FeedingDictKeys = list(FeedingDict.keys())
+
+        if weight in FeedingDictKeys:
+            print(FeedingDict[weight][0])
+        elif weight == 0:
+            pass
+        else:
+            FeedingDictKeys.append(weight)
+            FeedingDictKeys.sort()
+            Approximation = FeedingDictKeys[FeedingDictKeys.index(weight) - 1]
+            print(FeedingDict[Approximation][0])
+
     def remove_widget(self,widget):
         self.root.get_screen("MainScreen").ids.feeding_time_list.remove_widget(widget)
         self.feedingList.remove(widget.text)
@@ -239,6 +332,26 @@ class Example(MDApp):
             self.theme_cls.theme_style = "Dark"
         else:
             self.theme_cls.theme_style = "Light"
+
+    def reset_default(self):
+        self.root.get_screen("MainScreen").ids.minDO.text = "4"
+        self.root.get_screen("MainScreen").ids.maxDO.text = "8"
+        self.root.get_screen("MainScreen").ids.minpH.text = "7.5"
+        self.root.get_screen("MainScreen").ids.maxpH.text = "8.5"
+        self.root.get_screen("MainScreen").ids.minSalinity.text = "0"
+        self.root.get_screen("MainScreen").ids.maxSalinity.text = "0.5"
+        if self.selected_species == "Nile Tilapia":
+            self.root.get_screen("MainScreen").ids.minTemp.text = "12"
+            self.root.get_screen("MainScreen").ids.maxTemp.text = "42"
+        elif self.selected_species == "Catfish":
+            self.root.get_screen("MainScreen").ids.minTemp.text = "9"
+            self.root.get_screen("MainScreen").ids.maxTemp.text = "37"
+        elif self.selected_species == "Shrimp":
+            self.root.get_screen("MainScreen").ids.minTemp.text = "14"
+            self.root.get_screen("MainScreen").ids.maxTemp.text = "40"
+        elif self.selected_species == "Prawn":
+            self.root.get_screen("MainScreen").ids.minTemp.text = "14"
+            self.root.get_screen("MainScreen").ids.maxTemp.text = "36"
 
     def use_meteorological_data(self, instance, value):
         if value:

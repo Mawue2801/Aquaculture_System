@@ -307,6 +307,64 @@ MDScreen:
                     size_hint: 0.53 , 0.15
                     pos_hint: {"center_x": 0.711, "center_y": 0.625}
 
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        FloatLayout:
+
+                            MDIcon:
+                                icon: "clock-time-two-outline"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                            MDLabel:
+                                id: meteorologicalTime
+                                text: "12pm"
+                                pos_hint: {"center_x": 0.9, "center_y": 0.5}
+                        
+                        MDLabel:
+                            text: ""
+
+                        FloatLayout:
+
+                            MDIcon:
+                                icon: "temperature-celsius"
+                                pos_hint: {"center_x": 0, "center_y": 0.5}
+                                
+
+                            MDLabel:
+                                id: meteorologicalTemp
+                                text: "86"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        
+                        MDLabel:
+                            text: ""
+
+                        FloatLayout:
+
+                            MDIcon:
+                                icon: "weather-rainy"
+                                pos_hint: {"center_x": 0, "center_y": 0.5}
+
+                            MDLabel:
+                                id: meteorologicalPrecipitation
+                                text: "11%"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                        MDLabel:
+                            text: ""
+
+                        FloatLayout:
+
+                            MDIcon:
+                                icon: "weather-windy"
+                                pos_hint: {"center_x": 0, "center_y": 0.5}
+
+                            MDLabel:
+                                id: meteorologicalWind
+                                text: "SSW 12mph"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}                            
+
+
                 MDCard:
                     orientation: "vertical"
                     padding: "5dp"
@@ -314,10 +372,19 @@ MDScreen:
                     pos_hint: {"center_x": 0.575, "center_y": 0.285}
 
                 MDTextField:
+                    id: fish_count
                     hint_text: "Fish Count"
                     text: "0"
                     size_hint_x: 0.2
                     pos_hint: {'center_x': 0.82, 'center_y': 0.45}
+                    input_filter: "int"
+
+                MDTextField:
+                    id: fish_weight
+                    hint_text: "Fish Weight (g)"
+                    text: "0"
+                    size_hint_x: 0.2
+                    pos_hint: {'center_x': 0.82, 'center_y': 0.3}
                     input_filter: "int"
 
 
@@ -409,6 +476,12 @@ MDScreen:
                 MDLabel:
                     text: "Thresholds"
                     pos_hint: {'center_x': 0.63, 'center_y': 0.8}
+
+                MDRectangleFlatButton:
+                    text: "Reset Default"
+                    size_hint_y: 0.07
+                    pos_hint: {'center_x': 0.8, 'center_y': 0.8}
+                    on_release: app.reset_default()
 
                 MDCard:
                     orientation: "vertical"
