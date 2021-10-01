@@ -1,0 +1,56 @@
+<ListItemWithCheckbox2>:
+
+    IconLeftWidget:
+        icon: "fish"
+
+    IconRightWidget:
+        icon: "delete"
+        on_release: app.remove_widget_2(root)
+
+MDScreen:
+    name: "SystemSettingsScreen"
+
+    FloatLayout:
+
+        MDCard:
+            orientation: "vertical"
+            padding: "5dp"
+            size_hint: 0.7 , 0.5
+            pos_hint: {"center_x": 0.5, "center_y": 0.72}
+
+            MDBoxLayout:
+
+                ScrollView:
+
+                    MDList:
+                        id: pond_identities_list
+
+        MDLabel:
+            text: "Select Species of Interest:"
+            pos_hint: {'center_x': 0.8, 'center_y': 0.4}
+
+        MDDropDownItem:
+            id: species_selection
+            pos_hint: {'center_x': 0.6, 'center_y': 0.4}
+            text: 'Nile Tilapia'
+            on_release: app.species_menu_2.open()
+
+        MDTextField:
+            id: fish_count
+            hint_text: "Fish Count"
+            text: "0"
+            size_hint_x: 0.2
+            pos_hint: {'center_x': 0.405, 'center_y': 0.25}
+            input_filter: "int"
+
+        MDRaisedButton:
+            text: "Add to List"
+            pos_hint: {'center_x': 0.6, 'center_y': 0.26}
+            on_release: app.add_to_ponds_dict()
+
+        MDRectangleFlatButton:
+            text: "Done"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+            on_release: app.set_system()
+
+        
