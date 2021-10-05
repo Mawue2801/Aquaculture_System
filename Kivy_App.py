@@ -209,18 +209,17 @@ class Example(MDApp):
     
     def build(self):
         self.theme_cls.primary_palette = "Blue"
-        if self.setSystem == True:
-            try:
-                ports = serial.tools.list_ports.comports()
-                for i in ports:
-                    i = str(i)
-                    if 'Arduino' in i:
-                        commPort = i.split(' ')[0]
-                    if commPort != 'None':
-                        self.arduino = serial.Serial(commPort,baudrate = 9600, timeout=1)
-                        print('Connected to ' + commPort)
-            except:
-                print('Connection Issue!')
+        try:
+            ports = serial.tools.list_ports.comports()
+            for i in ports:
+                i = str(i)
+                if 'Arduino' in i:
+                    commPort = i.split(' ')[0]
+                if commPort != 'None':
+                    self.arduino = serial.Serial(commPort,baudrate = 9600, timeout=1)
+                    print('Connected to ' + commPort)
+        except:
+            print('Connection Issue!')
         # Clock.schedule_interval(self.update, 1)
         Clock.schedule_interval(self.update_time, 1)
         return screen_manager
@@ -246,7 +245,7 @@ class Example(MDApp):
         name = self.username 
         toast(f"Welcome {name}")
         self.selected_species = self.pondDict["Pond 1"][0]
-        self.root.get_screen("MainScreen").ids.fish_weight.text = self.pondDict["Pond 1"][1]
+        self.root.get_screen("MainScreen").ids.fish_count.text = self.pondDict["Pond 1"][1]
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(self.pondDict["Pond 1"][0])
 
     def log_in(self):
@@ -307,6 +306,9 @@ class Example(MDApp):
         time_dialog = MDTimePicker()
         time_dialog.bind(time=self.get_time)
         time_dialog.open()
+    
+    def save_fish_count(self,text):
+        self.pondDict[self.selected_pond][1] = self.root.get_screen("MainScreen").ids.fish_count.text
 
     def update_time(self, *args):
         now = datetime.now()

@@ -378,6 +378,7 @@ MDScreen:
                     size_hint_x: 0.2
                     pos_hint: {'center_x': 0.82, 'center_y': 0.45}
                     input_filter: "int"
+                    on_text: app.save_fish_count(self.text)
 
                 MDTextField:
                     id: fish_weight
