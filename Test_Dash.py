@@ -1,52 +1,13 @@
-from kivy.lang import Builder
+import datetime
+import time
+# date_format = "%m/%d/%Y"
 
-from kivymd.app import MDApp
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.expansionpanel import (
-    MDExpansionPanel,
-    MDExpansionPanelThreeLine,
-)
+# now = datetime.now()
+# dt_string = now.strftime("%m/%d/%Y %H:%M:%S").split(" ")[0]
+t = time.localtime()
+current_time = time.strftime("%H:%M:%S",t)
+start_date = datetime.date.today()
+end_date = datetime.date(2021,10,19)
 
-KV = """
-<Content>
-    adaptive_height: True
-
-    TwoLineIconListItem:
-        text: '(050)-123-45-67'
-        secondary_text: 'Mobile'
-
-        IconLeftWidget:
-            icon: 'phone'
-
-
-ScrollView:
-
-    MDList:
-        id: box
-"""
-
-
-class Content(MDBoxLayout):
-    """Custom content."""
-
-
-class Example(MDApp):
-    def build(self):
-        return Builder.load_string(KV)
-
-    def on_start(self):
-        for i in range(10):
-            self.root.ids.box.add_widget(
-                MDExpansionPanel(
-                    icon="data/logo/kivy-icon-512.png",
-                    content=Content(),
-                    panel_cls=MDExpansionPanelThreeLine(
-                        text="Text",
-                        secondary_text="Secondary text",
-                        tertiary_text="Tertiary text",
-                    ),
-                )
-            )
-
-
-Example().run()
+print(current_time)
+print(int((end_date-start_date).days/7))

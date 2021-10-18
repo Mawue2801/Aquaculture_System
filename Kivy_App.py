@@ -4,7 +4,8 @@ from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivymd.uix.picker import MDTimePicker
 from kivymd.uix.menu import MDDropdownMenu
-from datetime import datetime
+import datetime
+import time
 import serial
 import serial.tools.list_ports
 from kivy.clock import Clock
@@ -18,6 +19,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.list import TwoLineListItem
 from bs4 import BeautifulSoup
 import requests
+import threading
 
 Window.size = (800,480)
 
@@ -31,7 +33,7 @@ class CredentialsContent(BoxLayout):
     pass
 
 
-class Example(MDApp):
+class MainApp(MDApp):
     dialog1 = None
     dialog2 = None
     dialog3 = None
@@ -55,76 +57,78 @@ class Example(MDApp):
         self.RedStatus = 0
         self.pondDict = {}
         self.feedingList = []
+        self.useMeteorologicalData = False
+        self.start_date = datetime.date.today()
 
         self.TilapiaFeeding = {
-                            1:[0.11,40,0.8,4],
-                            2:[0.18,40,1,4],
-                            4:[0.26,40,1,4],
-                            8:[0.42,40,2,4],
-                            12:[0.55,40,2,4],
-                            17:[0.73,35,3,3],
-                            24:[0.96,35,3,3],
-                            32:[1.16,35,3,3],
-                            43:[1.45,35,3,3],
-                            55:[1.70,35,3,3],
-                            68:[1.97,35,3,3],
-                            83:[2.28,35,3,3],
-                            100:[2.60,35,3,3],
-                            118:[2.84,35,3,3],
-                            137:[3.14,35,3,2],
-                            155:[3.58,32,"5 mix",2],
-                            174:[3.84,32,"5 mix",2],
-                            195:[4.28,32,"5 mix",2],
-                            215:[4.51,32,5,2],
-                            236:[4.72,32,5,2],
-                            257:[5.14,32,5,2],
-                            278:[5.42,32,5,2],
-                            299:[5.68,32,5,2],
-                            320:[5.92,32,5,2],
-                            341:[6.14,32,5,2],
-                            363:[6.53,32,5,2],
-                            384:[6.53,32,5,2],
-                            407:[6.92,32,5,2],
-                            430:[7.09,32,5,2],
-                            451:[7.21,32,5,2]
+                            1:[0.11,0,40,0.8,4],
+                            2:[0.18,0.14,40,1,4],
+                            4:[0.26,0.29,40,1,4],
+                            8:[0.42,0.57,40,2,4],
+                            12:[0.55,0.57,40,2,4],
+                            17:[0.73,0.7,35,3,3],
+                            24:[0.96,1.0,35,3,3],
+                            32:[1.16,1.2,35,3,3],
+                            43:[1.45,1.5,35,3,3],
+                            55:[1.70,1.7,35,3,3],
+                            68:[1.97,1.9,35,3,3],
+                            83:[2.28,2.2,35,3,3],
+                            100:[2.60,2.4,35,3,3],
+                            118:[2.84,2.6,35,3,3],
+                            137:[3.14,2.6,35,3,2],
+                            155:[3.58,2.7,32,"5 mix",2],
+                            174:[3.84,2.7,32,"5 mix",2],
+                            195:[4.28,2.9,32,"5 mix",2],
+                            215:[4.51,2.9,32,5,2],
+                            236:[4.72,3.0,32,5,2],
+                            257:[5.14,3.0,32,5,2],
+                            278:[5.42,3.0,32,5,2],
+                            299:[5.68,3.0,32,5,2],
+                            320:[5.92,3.0,32,5,2],
+                            341:[6.14,3.0,32,5,2],
+                            363:[6.53,3.1,32,5,2],
+                            384:[6.53,3.1,32,5,2],
+                            407:[6.92,3.2,32,5,2],
+                            430:[7.09,3.2,32,5,2],
+                            451:[7.21,3.3,32,5,2]
                             }
         self.CatfishFeeding = {
-                            10:[0.5,36,3,4],
-                            14:[0.7,36,3,4],
-                            23:[1.0,36,3,4],
-                            33:[1.3,36,3,4],
-                            45:[1.7,36,3,3],
-                            59:[2.1,36,3,3],
-                            77:[2.6,36,3,2],
-                            97:[2.9,32,3,2],
-                            122:[3.7,32,3,2],
-                            150:[4.1,32,3,2],
-                            182:[4.6,32,5,2],
-                            217:[5.2,32,5,2],
-                            252:[6.0,32,5,2],
-                            288:[5.8,32,5,2],
-                            323:[5.8,32,5,2],
-                            359:[6.5,32,5,2],
-                            395:[7.1,32,5,1],
-                            430:[6.5,32,5,1],
-                            466:[7.0,32,5,1],
-                            502:[7.5,32,5,1],
-                            537:[7.5,32,5,1],
-                            573:[8.0,32,5,1],
-                            609:[7.9,32,5,1],
-                            645:[8.4,32,5,1],
-                            680:[8.2,32,5,1],
-                            716:[8.6,32,5,1],
-                            752:[9.0,32,5,1],
-                            787:[8.7,32,5,1],
-                            823:[9.1,32,5,1],
-                            859:[9.4,32,5,1],
-                            894:[9.8,32,5,1],
-                            930:[9.3,32,5,1],
-                            966:[9.7,32,5,1],
-                            1002:[10.0,32,5,1],
-                            1037:[10.4,32,5,1],
-                            1073:[10.7,32,5,1],
+                            10:[0.5,0.5,36,3,4],
+                            14:[0.7,0.6,36,3,4],
+                            23:[1.0,1.2,36,3,4],
+                            33:[1.3,1.4,36,3,4],
+                            45:[1.7,1.7,36,3,3],
+                            59:[2.1,2.0,36,3,3],
+                            77:[2.6,2.6,36,3,2],
+                            97:[2.9,2.8,32,3,2],
+                            122:[3.7,3.7,32,3,2],
+                            150:[4.1,4.0,32,3,2],
+                            182:[4.6,4.6,32,5,2],
+                            217:[5.2,4.9,32,5,2],
+                            252:[6.0,5.0,32,5,2],
+                            288:[5.8,5.1,32,5,2],
+                            323:[5.8,5.1,32,5,2],
+                            359:[6.5,5.1,32,5,2],
+                            395:[7.1,5.1,32,5,1],
+                            430:[6.5,5.1,32,5,1],
+                            466:[7.0,5.1,32,5,1],
+                            502:[7.5,5.1,32,5,1],
+                            537:[7.5,5.1,32,5,1],
+                            573:[8.0,5.1,32,5,1],
+                            609:[7.9,5.1,32,5,1],
+                            645:[8.4,5.1,32,5,1],
+                            680:[8.2,5.1,32,5,1],
+                            716:[8.6,5.1,32,5,1],
+                            752:[9.0,5.1,32,5,1],
+                            787:[8.7,5.1,32,5,1],
+                            823:[9.1,5.1,32,5,1],
+                            859:[9.4,5.1,32,5,1],
+                            894:[9.8,5.1,32,5,1],
+                            930:[9.3,5.1,32,5,1],
+                            966:[9.7,5.1,32,5,1],
+                            1002:[10.0,5.1,32,5,1],
+                            1037:[10.4,5.1,32,5,1],
+                            1073:[10.7,5.1,32,5,1],
         }
         
         species = ["Nile Tilapia", "Catfish", "Shrimp", "Prawn"]
@@ -167,23 +171,24 @@ class Example(MDApp):
         self.selected_species = self.pondDict[text_item][0]
         self.root.get_screen("MainScreen").ids.fish_count.text = self.pondDict[text_item][1]
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(self.pondDict[text_item][0])
+        self.root.get_screen("MainScreen").ids.feeding_time_list.clear_widgets()
+        if len(self.pondDict[text_item][2]) != 0:
+            for time in self.pondDict[text_item][2]:
+                self.root.get_screen("MainScreen").ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{self.time_dict[time[0:2]]}-outline"))
+        self.root.get_screen("MainScreen").ids.minDO.text = self.pondDict[text_item][3][0]
+        self.root.get_screen("MainScreen").ids.maxDO.text = self.pondDict[text_item][3][1]
+        self.root.get_screen("MainScreen").ids.minTemp.text = self.pondDict[text_item][3][2]
+        self.root.get_screen("MainScreen").ids.maxTemp.text = self.pondDict[text_item][3][3]
+        self.root.get_screen("MainScreen").ids.minpH.text = self.pondDict[text_item][3][4]
+        self.root.get_screen("MainScreen").ids.maxpH.text = self.pondDict[text_item][3][5]
+        self.root.get_screen("MainScreen").ids.minSalinity.text = self.pondDict[text_item][3][6]
+        self.root.get_screen("MainScreen").ids.maxSalinity.text = self.pondDict[text_item][3][7]
 
     def set_species_item(self, text_item):
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(text_item)
         self.pondDict[self.selected_pond][0] = text_item
         self.selected_species = text_item
-        if self.selected_species == "Nile Tilapia":
-            self.root.get_screen("MainScreen").ids.minTemp.text = "12"
-            self.root.get_screen("MainScreen").ids.maxTemp.text = "42"
-        elif self.selected_species == "Catfish":
-            self.root.get_screen("MainScreen").ids.minTemp.text = "9"
-            self.root.get_screen("MainScreen").ids.maxTemp.text = "37"
-        elif self.selected_species == "Shrimp":
-            self.root.get_screen("MainScreen").ids.minTemp.text = "14"
-            self.root.get_screen("MainScreen").ids.maxTemp.text = "40"
-        elif self.selected_species == "Prawn":
-            self.root.get_screen("MainScreen").ids.minTemp.text = "14"
-            self.root.get_screen("MainScreen").ids.maxTemp.text = "36"
+        self.reset_default()
         self.species_menu.dismiss()
         self.species_change_alert()
 
@@ -248,13 +253,23 @@ class Example(MDApp):
         self.root.get_screen("MainScreen").ids.fish_count.text = self.pondDict["Pond 1"][1]
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(self.pondDict["Pond 1"][0])
 
+        self.root.get_screen("MainScreen").ids.minDO.text = self.pondDict["Pond 1"][3][0]
+        self.root.get_screen("MainScreen").ids.maxDO.text = self.pondDict["Pond 1"][3][1]
+        self.root.get_screen("MainScreen").ids.minTemp.text = self.pondDict["Pond 1"][3][2]
+        self.root.get_screen("MainScreen").ids.maxTemp.text = self.pondDict["Pond 1"][3][3]
+        self.root.get_screen("MainScreen").ids.minpH.text = self.pondDict["Pond 1"][3][4]
+        self.root.get_screen("MainScreen").ids.maxpH.text = self.pondDict["Pond 1"][3][5]
+        self.root.get_screen("MainScreen").ids.minSalinity.text = self.pondDict["Pond 1"][3][6]
+        self.root.get_screen("MainScreen").ids.maxSalinity.text = self.pondDict["Pond 1"][3][7]
+
+        self.setSystem = True
+
     def log_in(self):
         if self.root.get_screen("LoginScreen").ids.user.text == self.username and self.root.get_screen("LoginScreen").ids.password.text == self.password:
            if self.setSystem == False:
                screen_manager.current = "SystemSettingsScreen" 
                self.root.get_screen("LoginScreen").ids.user.text = ""
                self.root.get_screen("LoginScreen").ids.password.text = ""
-               self.setSystem = True
            else:
                 name = self.username
                 toast(f"Welcome {name}")
@@ -291,16 +306,29 @@ class Example(MDApp):
             self.root.get_screen("SystemSettingsScreen").ids.pond_identities_list.add_widget(ListItemWithCheckbox2(text=f"{name}                    {species}                   {count}"))
         elif len(count) == 4:
             self.root.get_screen("SystemSettingsScreen").ids.pond_identities_list.add_widget(ListItemWithCheckbox2(text=f"{name}                    {species}                   {count}"))
-        self.pondDict[name] = [self.selected_species_2,count]
+        
+
+        if self.selected_species_2 == "Nile Tilapia":
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","12","42","7.5","8.5","0","0.5"]]
+        elif self.selected_species_2 == "Catfish":
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","9","37","7.5","8.5","0","0.5"]]
+        elif self.selected_species_2 == "Shrimp":
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","40","7.5","8.5","0","0.5"]]
+        elif self.selected_species_2 == "Prawn":
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","36","7.5","8.5","0","0.5"]]
+
 
     def add_to_feeding_list(self):
-        time_dict = {"00":"twelve","01":"one","02":"two","03":"three","04":"four","05":"five","06":"six",
+        self.time_dict = {"00":"twelve","01":"one","02":"two","03":"three","04":"four","05":"five","06":"six",
                     "07":"seven","08":"eight","09":"nine","10":"ten","11":"eleven","12":"twelve","13":"one",
                     "14":"two","15":"three","16":"four","17":"five","18":"six","19":"seven","20":"eight",
                     "21":"nine","22":"ten","23":"eleven"}
         time = self.root.get_screen("MainScreen").ids.feeding_time_label.text
-        self.root.get_screen("MainScreen").ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{time_dict[time[0:2]]}-outline"))
-        self.feedingList.append(time)
+        if time not in self.pondDict[self.selected_pond][2]:
+            self.root.get_screen("MainScreen").ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{self.time_dict[time[0:2]]}-outline"))
+            self.pondDict[self.selected_pond][2].append(time)
+        else:
+            toast("Selected time is already in the list")
 
     def show_time_picker(self):
         time_dialog = MDTimePicker()
@@ -310,40 +338,76 @@ class Example(MDApp):
     def save_fish_count(self,text):
         self.pondDict[self.selected_pond][1] = self.root.get_screen("MainScreen").ids.fish_count.text
 
+    def save_minDO(self,text):
+        self.pondDict[self.selected_pond][3][0] = self.root.get_screen("MainScreen").ids.minDO.text
+
+    def save_maxDO(self,text):
+        self.pondDict[self.selected_pond][3][1] = self.root.get_screen("MainScreen").ids.maxDO.text
+
+    def save_minTemp(self,text):
+        self.pondDict[self.selected_pond][3][2] = self.root.get_screen("MainScreen").ids.minTemp.text
+
+    def save_maxTemp(self,text):
+        self.pondDict[self.selected_pond][3][3] = self.root.get_screen("MainScreen").ids.maxTemp.text
+    
+    def save_minpH(self,text):
+        self.pondDict[self.selected_pond][3][4] = self.root.get_screen("MainScreen").ids.minpH.text
+
+    def save_maxpH(self,text):
+        self.pondDict[self.selected_pond][3][5] = self.root.get_screen("MainScreen").ids.maxpH.text
+
+    def save_minSalinity(self,text):
+        self.pondDict[self.selected_pond][3][6] = self.root.get_screen("MainScreen").ids.minSalinity.text
+
+    def save_maxSalinity(self,text):
+        self.pondDict[self.selected_pond][3][7] = self.root.get_screen("MainScreen").ids.maxSalinity.text
+
     def update_time(self, *args):
-        now = datetime.now()
-        dt_string = now.strftime("%b-%d-%Y %H:%M:%S").split(" ")
-        self.date = dt_string[0]
-        self.time = dt_string[1]
-        self.root.get_screen("MainScreen").ids.date_label.text = dt_string[0]
-        self.root.get_screen("MainScreen").ids.time_label.text = dt_string[1]
+        self.today = datetime.date.today()
+        self.date = self.today.strftime("%b-%d-%Y")
+        t = time.localtime()
+        self.current_time = time.strftime("%H:%M:%S",t)
+        self.root.get_screen("MainScreen").ids.date_label.text = str(self.date)
+        self.root.get_screen("MainScreen").ids.time_label.text = str(self.current_time)
+
+        self.current_week = int((self.today-self.start_date).days/7) + 1
+        self.root.get_screen("MainScreen").ids.week_label.text = "Week " + str(self.current_week)
 
         weight = self.root.get_screen("MainScreen").ids.fish_weight.text
-        if weight == "":
-            weight=0
-        weight = int(weight)
+        
+        if self.setSystem == True:
+            for name in list(self.pondDict.keys()):
+                if self.current_time in self.pondDict[name][2]:
+                    print(f"Feeder Turned on for {name}")
 
-        if self.selected_species == "Nile Tilapia":
-            FeedingDict = self.TilapiaFeeding
-        elif self.selected_species == "Catfish":
-            FeedingDict = self.CatfishFeeding
+            if self.useMeteorologicalData == True:
+                if str(self.current_time)[3:] == "00:00":
+                    threading.Thread(target = self.fetch_meteorological_data).start()
 
-        FeedingDictKeys = list(FeedingDict.keys())
+            if weight == "":
+                weight=0
+            weight = int(weight)
 
-        if weight in FeedingDictKeys:
-            print(FeedingDict[weight][0])
-        elif weight == 0:
-            pass
-        else:
-            FeedingDictKeys.append(weight)
-            FeedingDictKeys.sort()
-            Approximation = FeedingDictKeys[FeedingDictKeys.index(weight) - 1]
-            print(FeedingDict[Approximation][0])
+            if self.selected_species == "Nile Tilapia":
+                FeedingDict = self.TilapiaFeeding
+            elif self.selected_species == "Catfish":
+                FeedingDict = self.CatfishFeeding
+
+            FeedingDictKeys = list(FeedingDict.keys())
+
+            if weight in FeedingDictKeys:
+                print(FeedingDict[weight][0])
+            elif weight == 0:
+                pass
+            else:
+                FeedingDictKeys.append(weight)
+                FeedingDictKeys.sort()
+                Approximation = FeedingDictKeys[FeedingDictKeys.index(weight) - 1]
+                print(FeedingDict[Approximation][0])
 
     def remove_widget(self,widget):
         self.root.get_screen("MainScreen").ids.feeding_time_list.remove_widget(widget)
-        self.feedingList.remove(widget.text)
-        print(self.feedingList)
+        self.pondDict[self.selected_pond][2].remove(widget.text)
         
     def remove_widget_2(self,widget):
         name = widget.text.split(" ")[0]
@@ -426,27 +490,45 @@ class Example(MDApp):
 
     def reset_default(self):
         self.root.get_screen("MainScreen").ids.minDO.text = "4"
+        self.pondDict[self.selected_pond][3][0] = "4"
         self.root.get_screen("MainScreen").ids.maxDO.text = "8"
+        self.pondDict[self.selected_pond][3][1] = "8"
         self.root.get_screen("MainScreen").ids.minpH.text = "7.5"
+        self.pondDict[self.selected_pond][3][4] = "7.5"
         self.root.get_screen("MainScreen").ids.maxpH.text = "8.5"
+        self.pondDict[self.selected_pond][3][5] = "8.5"
         self.root.get_screen("MainScreen").ids.minSalinity.text = "0"
+        self.pondDict[self.selected_pond][3][6] = "0"
         self.root.get_screen("MainScreen").ids.maxSalinity.text = "0.5"
+        self.pondDict[self.selected_pond][3][7] = "0.5"
+        
         if self.selected_species == "Nile Tilapia":
             self.root.get_screen("MainScreen").ids.minTemp.text = "12"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "42"
+            self.pondDict[self.selected_pond][3][2] = "12"
+            self.pondDict[self.selected_pond][3][3] = "42"
         elif self.selected_species == "Catfish":
             self.root.get_screen("MainScreen").ids.minTemp.text = "9"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "37"
+            self.pondDict[self.selected_pond][3][2] = "9"
+            self.pondDict[self.selected_pond][3][3] = "37"
         elif self.selected_species == "Shrimp":
             self.root.get_screen("MainScreen").ids.minTemp.text = "14"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "40"
+            self.pondDict[self.selected_pond][3][2] = "14"
+            self.pondDict[self.selected_pond][3][3] = "40"
         elif self.selected_species == "Prawn":
             self.root.get_screen("MainScreen").ids.minTemp.text = "14"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "36"
+            self.pondDict[self.selected_pond][3][2] = "14"
+            self.pondDict[self.selected_pond][3][3] = "36"
 
     def use_meteorological_data(self, instance, value):
         if value:
-            Clock.schedule_interval(self.fetch_meteorological_data, 1800)
+            self.useMeteorologicalData = True
+            #threading.Thread(target = self.fetch_meteorological_data).start()
+        else:
+            self.useMeteorologicalData = False
 
     def fetch_meteorological_data(self, *args):
         html_text = requests.get("https://weather.com/weather/hourbyhour/l/Accra+Greater+Accra+Ghana?canonicalCityId=6ea38a5575bc43b7f51f1fd1416e23b944035f76b5e7f817354e76191c79a389").text
@@ -454,9 +536,17 @@ class Example(MDApp):
         hours = soup.findAll('h2',class_="DetailsSummary--daypartName--2FBp2")
         temps = soup.findAll('span', class_="DetailsSummary--tempValue--1K4ka")
         precipitationPercentages = soup.findAll('div',class_="DetailsSummary--precip--1ecIJ")
-        wind = soup.findAll('span', class_="Wind--windWrapper--3aqXJ undefined")
-        print(hours[0].text)
-        print(precipitationPercentages[0].text)
+        winds = soup.findAll('span', class_="Wind--windWrapper--3aqXJ undefined")
+        precipitationPercentage = precipitationPercentages[0].text
+        precipitationPercentage = precipitationPercentage.replace("Rain","")
+        wind = winds[0].text
+        wind = wind.split(" ")
+        wind = wind[0] + " " + wind[1] + wind[2]
+        self.root.get_screen("MainScreen").ids.meteorologicalTime.text = hours[0].text
+        self.root.get_screen("MainScreen").ids.meteorologicalTemp.text = temps[0].text
+        self.root.get_screen("MainScreen").ids.meteorologicalPrecipitation.text = precipitationPercentage
+        self.root.get_screen("MainScreen").ids.meteorologicalWind.text = wind
+        print(hours[0].text,temps[0].text,precipitationPercentages[0].text,winds[0].text)
         
 
-Example().run()
+MainApp().run()
