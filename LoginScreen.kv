@@ -32,7 +32,9 @@ MDScreen:
 
             MDTextButton:
                 text: "Forgot Password"
-                pos_hint: {"center_x": 0.15, "center_y": 0.25}
+                theme_text_color: "Custom"
+                text_color: 0, 176/255, 240/255, 1
+                pos_hint: {"center_x": 0.15, "center_y": 0.23}
                 on_release: app.change_password()
                 font_style: "Caption"
 

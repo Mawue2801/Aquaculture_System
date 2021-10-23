@@ -368,8 +368,54 @@ MDScreen:
                 MDCard:
                     orientation: "vertical"
                     padding: "5dp"
-                    size_hint: 0.25 , 0.47
-                    pos_hint: {"center_x": 0.575, "center_y": 0.285}
+                    size_hint: 0.25 , 0.23
+                    pos_hint: {"center_x": 0.572, "center_y": 0.42}
+
+                    MDLabel:
+                        text: "Feed Type"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: feed_type_label
+                            text: ""
+                            font_style: "H4"
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "5dp"
+                    size_hint: 0.25 , 0.23
+                    pos_hint: {"center_x": 0.572, "center_y": 0.175}
+
+                    MDLabel:
+                        text: "Feeding Frequency"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+
+                    BoxLayout:
+                        orientation:"horizontal"
+
+                        MDLabel:
+                            text: ""
+
+                        MDLabel:
+                            id: feeding_frequency_label
+                            text: ""
+                            font_style: "H4"
 
                 MDTextField:
                     id: fish_count

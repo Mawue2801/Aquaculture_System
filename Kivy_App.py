@@ -225,7 +225,7 @@ class MainApp(MDApp):
                     print('Connected to ' + commPort)
         except:
             print('Connection Issue!')
-        # Clock.schedule_interval(self.update, 1)
+        Clock.schedule_interval(self.update, 1)
         Clock.schedule_interval(self.update_time, 1)
         return screen_manager
 
@@ -309,13 +309,13 @@ class MainApp(MDApp):
         
 
         if self.selected_species_2 == "Nile Tilapia":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","12","42","7.5","8.5","0","0.5"]]
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","12","42","7.5","8.5","0","0.5"],[]]
         elif self.selected_species_2 == "Catfish":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","9","37","7.5","8.5","0","0.5"]]
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","9","37","7.5","8.5","0","0.5"],[]]
         elif self.selected_species_2 == "Shrimp":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","40","7.5","8.5","0","0.5"]]
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","40","7.5","8.5","0","0.5"],[]]
         elif self.selected_species_2 == "Prawn":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","36","7.5","8.5","0","0.5"]]
+            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","36","7.5","8.5","0","0.5"],[]]
 
 
     def add_to_feeding_list(self):
@@ -416,33 +416,39 @@ class MainApp(MDApp):
         del self.pondDict[name]
         print(self.pondDict)
     
-    # def update(self, *args):
-    #     arduino = self.arduino
-    #     data = str(arduino.readline(arduino.inWaiting()).decode()).split(";")
-    #     try:
-    #         data = data[int(self.selected_pond.split(" ")[1])-1].split(",")
-    #         self.root.get_screen("MainScreen").ids.do_label.text = data[0]
-    #         self.root.get_screen("MainScreen").ids.temp_label.text = data[1]
-    #         self.root.get_screen("MainScreen").ids.pH_label.text = data[2]
-    #         self.root.get_screen("MainScreen").ids.water_level_label.text = data[3]
-    #         self.root.get_screen("MainScreen").ids.turbidity_label.text = data[4]
-    #         salinityLevel = (float(data[5].replace("\r\n",""))**1.0878)*466.5
-    #         self.root.get_screen("MainScreen").ids.salinity_label.text = str(salinityLevel)
-    #         if len(data) == 6:
-    #             if float(data[0]) < 4 and self.RedStatus == 0:
-    #                 arduino.write(b"R")
-    #                 self.RedStatus = 1
-    #                 CurrentDate = self.date
-    #                 CurrentTime = self.time
-    #                 self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned On",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
-    #             if float(data[0]) > 3 and self.RedStatus == 1 :
-    #                 arduino.write(b"r")
-    #                 self.RedStatus = 0
-    #                 CurrentDate = self.date
-    #                 CurrentTime = self.time
-    #                 self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned Off",secondary_text=f"At {CurrentTime} on {CurrentDate}"))     
-    #     except:
-    #         pass
+    def update(self, *args):
+        if self.setSystem == True:
+            try:
+                arduino = self.arduino
+                data = str(arduino.readline(arduino.inWaiting()).decode()).split("-")
+                pondIdentity = "Pond " + data[0]
+                sensorValues = data[1].split(",")
+                self.pondDict[pondIdentity][4] = sensorValues
+                print(sensorValues)
+                if len(self.pondDict[self.selected_pond][4]) == 2:
+            #         self.root.get_screen("MainScreen").ids.do_label.text = data[0]
+                    self.root.get_screen("MainScreen").ids.temp_label.text = self.pondDict[self.selected_pond][4][0]
+                    self.root.get_screen("MainScreen").ids.pH_label.text = self.pondDict[self.selected_pond][4][1].replace("\r\n","")
+                    arduino.write(b"A1")
+            #         self.root.get_screen("MainScreen").ids.water_level_label.text = data[3]
+            #         self.root.get_screen("MainScreen").ids.turbidity_label.text = data[4]
+            #         salinityLevel = (float(data[5].replace("\r\n",""))**1.0878)*466.5
+            #         self.root.get_screen("MainScreen").ids.salinity_label.text = str(salinityLevel)
+            #         if len(data) == 6:
+            #             if float(data[0]) < 4 and self.RedStatus == 0:
+            #                 arduino.write(b"R")
+            #                 self.RedStatus = 1
+            #                 CurrentDate = self.date
+            #                 CurrentTime = self.time
+            #                 self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned On",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
+            #             if float(data[0]) > 3 and self.RedStatus == 1 :
+            #                 arduino.write(b"r")
+            #                 self.RedStatus = 0
+            #                 CurrentDate = self.date
+            #                 CurrentTime = self.time
+            #                 self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned Off",secondary_text=f"At {CurrentTime} on {CurrentDate}"))     
+            except:
+                pass
 
     def change_login_details_dialog(self):
         if not self.dialog2:
