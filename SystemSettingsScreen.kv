@@ -27,11 +27,11 @@ MDScreen:
 
         MDLabel:
             text: "Select Species of Interest:"
-            pos_hint: {'center_x': 0.8, 'center_y': 0.4}
+            pos_hint: {'center_x': 0.6575, 'center_y': 0.4}
 
         MDDropDownItem:
             id: species_selection
-            pos_hint: {'center_x': 0.6, 'center_y': 0.4}
+            pos_hint: {'center_x': 0.475, 'center_y': 0.4}
             text: 'Nile Tilapia'
             on_release: app.species_menu_2.open()
 
@@ -40,12 +40,20 @@ MDScreen:
             hint_text: "Fish Count"
             text: "0"
             size_hint_x: 0.2
-            pos_hint: {'center_x': 0.405, 'center_y': 0.25}
+            pos_hint: {'center_x': 0.26, 'center_y': 0.25}
+            input_filter: "int"
+
+        MDTextField:
+            id: fish_weight
+            hint_text: "Fish Weight"
+            text: "0"
+            size_hint_x: 0.2
+            pos_hint: {'center_x': 0.5, 'center_y': 0.25}
             input_filter: "int"
 
         MDRaisedButton:
             text: "Add to List"
-            pos_hint: {'center_x': 0.6, 'center_y': 0.26}
+            pos_hint: {'center_x': 0.75, 'center_y': 0.26}
             on_release: app.add_to_ponds_dict()
 
         MDRectangleFlatButton:

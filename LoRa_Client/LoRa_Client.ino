@@ -30,8 +30,16 @@ DallasTemperature sensors(&oneWire);
 // Singleton instance of the radio driver
 RH_RF95 rf95;
 
+int trigPin=4;
+int echoPin=5;
+int pingTravelTime;
+float pingTravelDistance;
+float distanceToTarget;
+
 float frequency = 868.0;
 float temperature = 0;
+
+int doReadings = 0;
 
 float calibration_value = 21.34 - 0.7;
 int phval = 0; 
@@ -40,12 +48,21 @@ int buffer_arr[10],temp;
  
 float ph_act;
 
+long waterLevelReadings;
+long turbidityReadings;
+long salinityReadings;
+
+int aerator = 8;
+
 void setup() 
 {
   Serial.begin(9600);
-  pinMode(5,OUTPUT);
+  pinMode(aerator, OUTPUT);
   pinMode(6,OUTPUT);
   pinMode(7,OUTPUT);
+
+  pinMode(trigPin,OUTPUT);
+  pinMode(echoPin,INPUT);
   sensors.begin();
   //while (!Serial) ; // Wait for serial port to be available
   Serial.println("Start LoRa Client");
@@ -65,6 +82,7 @@ void setup()
   
   // Setup Coding Rate:5(4/5),6(4/6),7(4/7),8(4/8) 
   rf95.setCodingRate4(5);
+  randomSeed(analogRead(5));
 }
 
 void loop()
@@ -84,10 +102,24 @@ void loop()
       {
         sensors.requestTemperatures(); 
         temperature=sensors.getTempCByIndex(0);
+        doReadings = analogRead(A0);
+        doReadings = map(doReadings, 0, 1024, 2, 9);
+        digitalWrite(trigPin,LOW);
+        delayMicroseconds(10);
+        digitalWrite(trigPin,HIGH);
+        delayMicroseconds(10);
+        digitalWrite(trigPin,LOW);
+        pingTravelTime=pulseIn(echoPin,HIGH);
+        pingTravelDistance=(pingTravelTime*765.*5280.*12)/(3600.*1000000);
+        distanceToTarget=(pingTravelDistance*0.0254)/2;
+        
+        waterLevelReadings = distanceToTarget;
+        turbidityReadings = random(10);
+        salinityReadings = random(25);
       
         for(int i=0;i<10;i++) 
          { 
-         buffer_arr[i]=analogRead(A0);
+         buffer_arr[i]=analogRead(A1);
          delay(30);
          }
          for(int i=0;i<9;i++)
@@ -107,7 +139,7 @@ void loop()
          avgval+=buffer_arr[i];
          float volt=(float)avgval*5.0/1024/6; 
          ph_act = -5.70 * volt + calibration_value;
-        String data = "1-" + String(temperature) + "," + String(ph_act);
+        String data = "1-" + String(doReadings) + "," + String(temperature) + "," + String(ph_act) + "," + String(waterLevelReadings) + "," + String(turbidityReadings) + "," + String(salinityReadings);
         int dataLength = data.length();dataLength++;
         uint8_t total[dataLength];
         data.toCharArray(total,dataLength);
@@ -115,13 +147,15 @@ void loop()
         rf95.send(total,dataLength);
         rf95.waitPacketSent();
       }
-     else if(Request.indexOf("A1") >= 0)
+     else if(Request.indexOf("1-A1") >= 0)
      {
-      digitalWrite(5,HIGH);
-      delay(500);
-      digitalWrite(5,LOW);
+      digitalWrite(aerator, HIGH);
       Serial.println("A1 Request Received");
      }
+     else if(Request.indexOf("1-A0") >= 0)
+     {
+      digitalWrite(aerator, LOW);
+      Serial.println("A0 Request Received"); 
     }
   }
   delay(400);

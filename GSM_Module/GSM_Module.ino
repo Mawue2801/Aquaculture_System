@@ -2,12 +2,13 @@
 SoftwareSerial sim(10, 11);
 int _timeout;
 String _buffer;
-String number = "+6281222329xxx"; //-> change with your number
+String number = "+233544089527"; //-> change with your number
 void setup() {
   //delay(7000); //delay for 7 seconds to make sure the modules get the signal
   Serial.begin(9600);
+  Serial.println("Starting...");
   _buffer.reserve(50);
-  Serial.println("Sistem Started...");
+  Serial.println("System Started...");
   sim.begin(9600);
   delay(1000);
   Serial.println("Type s to send an SMS, r to receive an SMS, and c to make a call");
@@ -32,6 +33,7 @@ void loop() {
 void SendMessage()
 {
   //Serial.println ("Sending Message");
+  Serial.println("Sending message");
   sim.println("AT+CMGF=1");    //Sets the GSM Module in Text Mode
   delay(200);
   //Serial.println ("Set SMS Number");

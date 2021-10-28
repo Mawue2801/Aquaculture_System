@@ -3,8 +3,8 @@
  * Refer to www.SurtrTech. com or SurtrTech YT channel for more informations 
  */
 
-#define TRIG 11 //Module pins
-#define ECHO 12 
+#define TRIG 4 //Module pins
+#define ECHO 5 
 
 void setup() { 
   

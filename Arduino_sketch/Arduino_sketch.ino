@@ -1,6 +1,6 @@
-#include "DHT.h"
+  #include "DHT.h"
 #define Type DHT11
-int sensePin=4;
+int sensePin=2;
 DHT HT(sensePin,Type);
 float humidity;
 float dhtTemp;
@@ -12,8 +12,8 @@ const int tempSensor=A1;
 float LDR1Val;
 float LDR2Val;
 float tempVal;
-int trigPin=2;
-int echoPin=3;
+int trigPin=4;
+int echoPin=5;
 int pingTravelTime;
 float pingTravelDistance;
 float distanceToTarget;
@@ -50,48 +50,48 @@ delayMicroseconds(10);
 digitalWrite(trigPin,LOW);
 pingTravelTime=pulseIn(echoPin,HIGH);
 pingTravelDistance=(pingTravelTime*765.*5280.*12)/(3600.*1000000);
-distanceToTarget=pingTravelDistance/2;
+distanceToTarget=(pingTravelDistance*0.0254)/2;
 
 
 //Serial.print("LDR1: ");
-Serial.print(LDR1Val);
-Serial.print(",");
+//Serial.print(LDR1Val);
+//Serial.print(",");
 //Serial.print(" Temperature: ");
-Serial.print(tempVal);
-Serial.print(",");
+//Serial.print(tempVal);
+//Serial.print(",");
 //Serial.print(" Humidity: ");
-Serial.print(humidity);
-Serial.print(",");
+//Serial.print(humidity);
+//Serial.print(",");
 //Serial.print(" DHT Temperature: ");
-Serial.print(dhtTemp);
-Serial.print(",");
+//Serial.print(dhtTemp);
+//Serial.print(",");
 //Serial.print(" Distance to Target is: ");
-Serial.print(distanceToTarget);
+Serial.println(distanceToTarget);
 //Serial.print(" in.");
-Serial.print(",");
+//Serial.print(",");
 //Serial.print(" LDR2: ");
-Serial.print(LDR2Val);
+//Serial.print(LDR2Val);
 
-Serial.print(";");
+//Serial.print(";");
 
 //Serial.print("LDR1: ");
-Serial.print(LDR1Val);
-Serial.print(",");
+//Serial.print(LDR1Val);
+//Serial.print(",");
 //Serial.print(" LDR2: ");
-Serial.print(LDR2Val);
-Serial.print(",");
+//Serial.print(LDR2Val);
+//Serial.print(",");
 //Serial.print(" Humidity: ");
-Serial.print(humidity);
-Serial.print(",");
+//Serial.print(humidity);
+//Serial.print(",");
 //Serial.print(" DHT Temperature: ");
-Serial.print(dhtTemp);
-Serial.print(",");
+//Serial.print(dhtTemp);
+//Serial.print(",");
 //Serial.print(" Distance to Target is: ");
-Serial.print(distanceToTarget);
+//Serial.print(distanceToTarget);
 //Serial.print(" in.");
-Serial.print(",");
+//Serial.print(",");
 //Serial.print(" Temperature: ");
-Serial.println(tempVal);
+//Serial.println(tempVal);
 
 if (Serial.available() > 0){
   command = Serial.read();

@@ -20,6 +20,7 @@ from kivymd.uix.list import TwoLineListItem
 from bs4 import BeautifulSoup
 import requests
 import threading
+import os
 
 Window.size = (800,480)
 
@@ -59,6 +60,7 @@ class MainApp(MDApp):
         self.feedingList = []
         self.useMeteorologicalData = False
         self.start_date = datetime.date.today()
+        self.logStatus = False
 
         self.TilapiaFeeding = {
                             1:[0.11,0,40,0.8,4],
@@ -170,19 +172,20 @@ class MainApp(MDApp):
         self.pond_menu.dismiss()
         self.selected_species = self.pondDict[text_item][0]
         self.root.get_screen("MainScreen").ids.fish_count.text = self.pondDict[text_item][1]
+        self.root.get_screen("MainScreen").ids.fish_weight.text = self.pondDict[text_item][2]
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(self.pondDict[text_item][0])
         self.root.get_screen("MainScreen").ids.feeding_time_list.clear_widgets()
-        if len(self.pondDict[text_item][2]) != 0:
-            for time in self.pondDict[text_item][2]:
+        if len(self.pondDict[text_item][3]) != 0:
+            for time in self.pondDict[text_item][3]:
                 self.root.get_screen("MainScreen").ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{self.time_dict[time[0:2]]}-outline"))
-        self.root.get_screen("MainScreen").ids.minDO.text = self.pondDict[text_item][3][0]
-        self.root.get_screen("MainScreen").ids.maxDO.text = self.pondDict[text_item][3][1]
-        self.root.get_screen("MainScreen").ids.minTemp.text = self.pondDict[text_item][3][2]
-        self.root.get_screen("MainScreen").ids.maxTemp.text = self.pondDict[text_item][3][3]
-        self.root.get_screen("MainScreen").ids.minpH.text = self.pondDict[text_item][3][4]
-        self.root.get_screen("MainScreen").ids.maxpH.text = self.pondDict[text_item][3][5]
-        self.root.get_screen("MainScreen").ids.minSalinity.text = self.pondDict[text_item][3][6]
-        self.root.get_screen("MainScreen").ids.maxSalinity.text = self.pondDict[text_item][3][7]
+        self.root.get_screen("MainScreen").ids.minDO.text = self.pondDict[text_item][4][0]
+        self.root.get_screen("MainScreen").ids.maxDO.text = self.pondDict[text_item][4][1]
+        self.root.get_screen("MainScreen").ids.minTemp.text = self.pondDict[text_item][4][2]
+        self.root.get_screen("MainScreen").ids.maxTemp.text = self.pondDict[text_item][4][3]
+        self.root.get_screen("MainScreen").ids.minpH.text = self.pondDict[text_item][4][4]
+        self.root.get_screen("MainScreen").ids.maxpH.text = self.pondDict[text_item][4][5]
+        self.root.get_screen("MainScreen").ids.minSalinity.text = self.pondDict[text_item][4][6]
+        self.root.get_screen("MainScreen").ids.maxSalinity.text = self.pondDict[text_item][4][7]
 
     def set_species_item(self, text_item):
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(text_item)
@@ -251,16 +254,17 @@ class MainApp(MDApp):
         toast(f"Welcome {name}")
         self.selected_species = self.pondDict["Pond 1"][0]
         self.root.get_screen("MainScreen").ids.fish_count.text = self.pondDict["Pond 1"][1]
+        self.root.get_screen("MainScreen").ids.fish_weight.text = self.pondDict["Pond 1"][2]
         screen_manager.get_screen("MainScreen").ids.species_selection.set_item(self.pondDict["Pond 1"][0])
 
-        self.root.get_screen("MainScreen").ids.minDO.text = self.pondDict["Pond 1"][3][0]
-        self.root.get_screen("MainScreen").ids.maxDO.text = self.pondDict["Pond 1"][3][1]
-        self.root.get_screen("MainScreen").ids.minTemp.text = self.pondDict["Pond 1"][3][2]
-        self.root.get_screen("MainScreen").ids.maxTemp.text = self.pondDict["Pond 1"][3][3]
-        self.root.get_screen("MainScreen").ids.minpH.text = self.pondDict["Pond 1"][3][4]
-        self.root.get_screen("MainScreen").ids.maxpH.text = self.pondDict["Pond 1"][3][5]
-        self.root.get_screen("MainScreen").ids.minSalinity.text = self.pondDict["Pond 1"][3][6]
-        self.root.get_screen("MainScreen").ids.maxSalinity.text = self.pondDict["Pond 1"][3][7]
+        self.root.get_screen("MainScreen").ids.minDO.text = self.pondDict["Pond 1"][4][0]
+        self.root.get_screen("MainScreen").ids.maxDO.text = self.pondDict["Pond 1"][4][1]
+        self.root.get_screen("MainScreen").ids.minTemp.text = self.pondDict["Pond 1"][4][2]
+        self.root.get_screen("MainScreen").ids.maxTemp.text = self.pondDict["Pond 1"][4][3]
+        self.root.get_screen("MainScreen").ids.minpH.text = self.pondDict["Pond 1"][4][4]
+        self.root.get_screen("MainScreen").ids.maxpH.text = self.pondDict["Pond 1"][4][5]
+        self.root.get_screen("MainScreen").ids.minSalinity.text = self.pondDict["Pond 1"][4][6]
+        self.root.get_screen("MainScreen").ids.maxSalinity.text = self.pondDict["Pond 1"][4][7]
 
         self.setSystem = True
 
@@ -290,6 +294,7 @@ class MainApp(MDApp):
         name = "Pond " + str(self.num_of_ponds)
         species = self.selected_species_2
         count = self.root.get_screen("SystemSettingsScreen").ids.fish_count.text
+        weight = self.root.get_screen("SystemSettingsScreen").ids.fish_weight.text
 
         if species == "Catfish":
             species += "       "
@@ -309,13 +314,14 @@ class MainApp(MDApp):
         
 
         if self.selected_species_2 == "Nile Tilapia":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","12","42","7.5","8.5","0","0.5"],[]]
+            # species, count, weight, feeding time, threshold values, sensor values, aerator status, total feed weight
+            self.pondDict[name] = [self.selected_species_2,count,weight,[],["4","8","12","42","7.5","8.5","0","0.5"],[],0,0]
         elif self.selected_species_2 == "Catfish":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","9","37","7.5","8.5","0","0.5"],[]]
+            self.pondDict[name] = [self.selected_species_2,count,weight,[],["4","8","9","37","7.5","8.5","0","0.5"],[],0,0]
         elif self.selected_species_2 == "Shrimp":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","40","7.5","8.5","0","0.5"],[]]
+            self.pondDict[name] = [self.selected_species_2,count,weight,[],["4","8","14","40","7.5","8.5","0","0.5"],[],0,0]
         elif self.selected_species_2 == "Prawn":
-            self.pondDict[name] = [self.selected_species_2,count,[],["4","8","14","36","7.5","8.5","0","0.5"],[]]
+            self.pondDict[name] = [self.selected_species_2,count,weight,[],["4","8","14","36","7.5","8.5","0","0.5"],[],0,0]
 
 
     def add_to_feeding_list(self):
@@ -324,9 +330,9 @@ class MainApp(MDApp):
                     "14":"two","15":"three","16":"four","17":"five","18":"six","19":"seven","20":"eight",
                     "21":"nine","22":"ten","23":"eleven"}
         time = self.root.get_screen("MainScreen").ids.feeding_time_label.text
-        if time not in self.pondDict[self.selected_pond][2]:
+        if time not in self.pondDict[self.selected_pond][3]:
             self.root.get_screen("MainScreen").ids.feeding_time_list.add_widget(ListItemWithCheckbox(text=time,icon=f"clock-time-{self.time_dict[time[0:2]]}-outline"))
-            self.pondDict[self.selected_pond][2].append(time)
+            self.pondDict[self.selected_pond][3].append(time)
         else:
             toast("Selected time is already in the list")
 
@@ -338,29 +344,32 @@ class MainApp(MDApp):
     def save_fish_count(self,text):
         self.pondDict[self.selected_pond][1] = self.root.get_screen("MainScreen").ids.fish_count.text
 
+    def save_fish_weight(self,text):
+        self.pondDict[self.selected_pond][2] = self.root.get_screen("MainScreen").ids.fish_count.text
+
     def save_minDO(self,text):
-        self.pondDict[self.selected_pond][3][0] = self.root.get_screen("MainScreen").ids.minDO.text
+        self.pondDict[self.selected_pond][4][0] = self.root.get_screen("MainScreen").ids.minDO.text
 
     def save_maxDO(self,text):
-        self.pondDict[self.selected_pond][3][1] = self.root.get_screen("MainScreen").ids.maxDO.text
+        self.pondDict[self.selected_pond][4][1] = self.root.get_screen("MainScreen").ids.maxDO.text
 
     def save_minTemp(self,text):
-        self.pondDict[self.selected_pond][3][2] = self.root.get_screen("MainScreen").ids.minTemp.text
+        self.pondDict[self.selected_pond][4][2] = self.root.get_screen("MainScreen").ids.minTemp.text
 
     def save_maxTemp(self,text):
-        self.pondDict[self.selected_pond][3][3] = self.root.get_screen("MainScreen").ids.maxTemp.text
+        self.pondDict[self.selected_pond][4][3] = self.root.get_screen("MainScreen").ids.maxTemp.text
     
     def save_minpH(self,text):
-        self.pondDict[self.selected_pond][3][4] = self.root.get_screen("MainScreen").ids.minpH.text
+        self.pondDict[self.selected_pond][4][4] = self.root.get_screen("MainScreen").ids.minpH.text
 
     def save_maxpH(self,text):
-        self.pondDict[self.selected_pond][3][5] = self.root.get_screen("MainScreen").ids.maxpH.text
+        self.pondDict[self.selected_pond][4][5] = self.root.get_screen("MainScreen").ids.maxpH.text
 
     def save_minSalinity(self,text):
-        self.pondDict[self.selected_pond][3][6] = self.root.get_screen("MainScreen").ids.minSalinity.text
+        self.pondDict[self.selected_pond][4][6] = self.root.get_screen("MainScreen").ids.minSalinity.text
 
     def save_maxSalinity(self,text):
-        self.pondDict[self.selected_pond][3][7] = self.root.get_screen("MainScreen").ids.maxSalinity.text
+        self.pondDict[self.selected_pond][4][7] = self.root.get_screen("MainScreen").ids.maxSalinity.text
 
     def update_time(self, *args):
         self.today = datetime.date.today()
@@ -374,10 +383,11 @@ class MainApp(MDApp):
         self.root.get_screen("MainScreen").ids.week_label.text = "Week " + str(self.current_week)
 
         weight = self.root.get_screen("MainScreen").ids.fish_weight.text
+        count = self.root.get_screen("MainScreen").ids.fish_count.text
         
         if self.setSystem == True:
             for name in list(self.pondDict.keys()):
-                if self.current_time in self.pondDict[name][2]:
+                if self.current_time in self.pondDict[name][3]:
                     print(f"Feeder Turned on for {name}")
 
             if self.useMeteorologicalData == True:
@@ -396,18 +406,24 @@ class MainApp(MDApp):
             FeedingDictKeys = list(FeedingDict.keys())
 
             if weight in FeedingDictKeys:
-                print(FeedingDict[weight][0])
+                totalFeedWeight = FeedingDict[weight][0] * int(count)
+                self.root.get_screen("MainScreen").ids.feed_type_label.text = str(FeedingDict[weight][2]) + "-" + str(FeedingDict[weight][3])
+                self.root.get_screen("MainScreen").ids.feeding_frequency_label.text = str(FeedingDict[weight][4])
+                #print(totalFeedWeight)
             elif weight == 0:
                 pass
             else:
                 FeedingDictKeys.append(weight)
                 FeedingDictKeys.sort()
                 Approximation = FeedingDictKeys[FeedingDictKeys.index(weight) - 1]
-                print(FeedingDict[Approximation][0])
+                totalFeedWeight = FeedingDict[Approximation][0] * int(count)
+                self.root.get_screen("MainScreen").ids.feed_type_label.text = str(FeedingDict[Approximation][2]) + "-" + str(FeedingDict[Approximation][3])
+                self.root.get_screen("MainScreen").ids.feeding_frequency_label.text = str(FeedingDict[Approximation][4])
+                #print(totalFeedWeight)
 
     def remove_widget(self,widget):
         self.root.get_screen("MainScreen").ids.feeding_time_list.remove_widget(widget)
-        self.pondDict[self.selected_pond][2].remove(widget.text)
+        self.pondDict[self.selected_pond][3].remove(widget.text)
         
     def remove_widget_2(self,widget):
         name = widget.text.split(" ")[0]
@@ -423,30 +439,46 @@ class MainApp(MDApp):
                 data = str(arduino.readline(arduino.inWaiting()).decode()).split("-")
                 pondIdentity = "Pond " + data[0]
                 sensorValues = data[1].split(",")
-                self.pondDict[pondIdentity][4] = sensorValues
-                print(sensorValues)
-                if len(self.pondDict[self.selected_pond][4]) == 2:
-            #         self.root.get_screen("MainScreen").ids.do_label.text = data[0]
-                    self.root.get_screen("MainScreen").ids.temp_label.text = self.pondDict[self.selected_pond][4][0]
-                    self.root.get_screen("MainScreen").ids.pH_label.text = self.pondDict[self.selected_pond][4][1].replace("\r\n","")
-                    arduino.write(b"A1")
-            #         self.root.get_screen("MainScreen").ids.water_level_label.text = data[3]
-            #         self.root.get_screen("MainScreen").ids.turbidity_label.text = data[4]
-            #         salinityLevel = (float(data[5].replace("\r\n",""))**1.0878)*466.5
-            #         self.root.get_screen("MainScreen").ids.salinity_label.text = str(salinityLevel)
-            #         if len(data) == 6:
-            #             if float(data[0]) < 4 and self.RedStatus == 0:
-            #                 arduino.write(b"R")
-            #                 self.RedStatus = 1
-            #                 CurrentDate = self.date
-            #                 CurrentTime = self.time
-            #                 self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned On",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
-            #             if float(data[0]) > 3 and self.RedStatus == 1 :
-            #                 arduino.write(b"r")
-            #                 self.RedStatus = 0
-            #                 CurrentDate = self.date
-            #                 CurrentTime = self.time
-            #                 self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text="Red LED Turned Off",secondary_text=f"At {CurrentTime} on {CurrentDate}"))     
+                self.pondDict[pondIdentity][5] = sensorValues
+                #print(sensorValues)
+ 
+                if len(self.pondDict[pondIdentity][5]) == 6:
+                    self.root.get_screen("MainScreen").ids.do_label.text = self.pondDict[self.selected_pond][5][0]
+                    self.root.get_screen("MainScreen").ids.temp_label.text = self.pondDict[self.selected_pond][5][1]
+                    self.root.get_screen("MainScreen").ids.pH_label.text = self.pondDict[self.selected_pond][5][2]
+                    self.root.get_screen("MainScreen").ids.water_level_label.text = self.pondDict[self.selected_pond][5][3]
+                    self.root.get_screen("MainScreen").ids.turbidity_label.text = self.pondDict[self.selected_pond][5][4]
+                    salinityLevel = round((float(self.pondDict[self.selected_pond][5][5].replace("\r\n",""))**1.0878)*466.5,2)
+                    self.root.get_screen("MainScreen").ids.salinity_label.text = str(salinityLevel)
+
+                    
+                    CurrentDate = self.date
+                    CurrentTime = self.current_time
+
+                    if self.logStatus == True:
+                        fileExists = os.path.exists(f"Log for {pondIdentity}.txt")
+                        if fileExists == False:
+                            file = open(f"Log for {pondIdentity}.txt","w")
+                            file.write(f"Date,Time,Dissolved Oxygen,Temperature,pH,Water Level,Turbidity,Salinity\n")
+                            file.close()
+                        file = open(f"Log for {pondIdentity}.txt","a")
+                        file.write(f"{CurrentDate},{CurrentTime},{self.pondDict[pondIdentity][5][0]},{self.pondDict[pondIdentity][5][1]},{self.pondDict[pondIdentity][5][2]},{self.pondDict[pondIdentity][5][3]},{self.pondDict[pondIdentity][5][4]},{self.pondDict[pondIdentity][5][5]}\n")
+                        file.close()
+
+                    if float(sensorValues[0]) < float(self.pondDict[pondIdentity][4][0]) and self.pondDict[pondIdentity][6] == 0:
+                        self.pondDict[pondIdentity][6] = 1
+                        arduino.write(bytes(f"{data[0]}-A1", 'utf-8'))
+                        self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text=f"Aerator for Pond {data[0]} Turned On",secondary_text=f"At {CurrentTime} on {CurrentDate}")) 
+                    
+                    elif float(sensorValues[0]) > float(self.pondDict[pondIdentity][4][0]) and self.pondDict[pondIdentity][6] == 1:
+                        self.pondDict[pondIdentity][6] = 0
+                        arduino.write(bytes(f"{data[0]}-A0", 'utf-8'))
+                        self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text=f"Aerator for Pond {data[0]} Turned Off",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
+
+                    elif float(sensorValues[0]) > float(self.pondDict[pondIdentity][4][1]) and self.pondDict[pondIdentity][6] == 1:
+                        self.pondDict[pondIdentity][6] = 0
+                        arduino.write(bytes(f"{data[0]}-A0", 'utf-8'))
+                        self.root.get_screen("MainScreen").ids.history_list.add_widget(TwoLineListItem(text=f"Aerator for Pond {data[0]} Turned Off",secondary_text=f"At {CurrentTime} on {CurrentDate}"))
             except:
                 pass
 
@@ -493,41 +525,47 @@ class MainApp(MDApp):
             self.theme_cls.theme_style = "Dark"
         else:
             self.theme_cls.theme_style = "Light"
+    
+    def log_data(self, instance, value):
+        if value:
+            self.logStatus = True
+        else:
+            self.logStatus = False
 
     def reset_default(self):
         self.root.get_screen("MainScreen").ids.minDO.text = "4"
-        self.pondDict[self.selected_pond][3][0] = "4"
+        self.pondDict[self.selected_pond][4][0] = "4"
         self.root.get_screen("MainScreen").ids.maxDO.text = "8"
-        self.pondDict[self.selected_pond][3][1] = "8"
+        self.pondDict[self.selected_pond][4][1] = "8"
         self.root.get_screen("MainScreen").ids.minpH.text = "7.5"
-        self.pondDict[self.selected_pond][3][4] = "7.5"
+        self.pondDict[self.selected_pond][4][4] = "7.5"
         self.root.get_screen("MainScreen").ids.maxpH.text = "8.5"
-        self.pondDict[self.selected_pond][3][5] = "8.5"
+        self.pondDict[self.selected_pond][4][5] = "8.5"
         self.root.get_screen("MainScreen").ids.minSalinity.text = "0"
-        self.pondDict[self.selected_pond][3][6] = "0"
+        self.pondDict[self.selected_pond][4][6] = "0"
         self.root.get_screen("MainScreen").ids.maxSalinity.text = "0.5"
-        self.pondDict[self.selected_pond][3][7] = "0.5"
+        self.pondDict[self.selected_pond][4][7] = "0.5"
         
         if self.selected_species == "Nile Tilapia":
             self.root.get_screen("MainScreen").ids.minTemp.text = "12"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "42"
-            self.pondDict[self.selected_pond][3][2] = "12"
-            self.pondDict[self.selected_pond][3][3] = "42"
+            self.pondDict[self.selected_pond][4][2] = "12"
+            self.pondDict[self.selected_pond][4][3] = "42"
         elif self.selected_species == "Catfish":
             self.root.get_screen("MainScreen").ids.minTemp.text = "9"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "37"
-            self.pondDict[self.selected_pond][3][2] = "9"
-            self.pondDict[self.selected_pond][3][3] = "37"
+            self.pondDict[self.selected_pond][4][2] = "9"
+            self.pondDict[self.selected_pond][4][3] = "37"
         elif self.selected_species == "Shrimp":
             self.root.get_screen("MainScreen").ids.minTemp.text = "14"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "40"
-            self.pondDict[self.selected_pond][3][2] = "14"
-            self.pondDict[self.selected_pond][3][3] = "40"
+            self.pondDict[self.selected_pond][4][2] = "14"
+            self.pondDict[self.selected_pond][4][3] = "40"
         elif self.selected_species == "Prawn":
             self.root.get_screen("MainScreen").ids.minTemp.text = "14"
             self.root.get_screen("MainScreen").ids.maxTemp.text = "36"
-            self.pondDict[self.selected_pond][3][2] = "14"
-            self.pondDict[self.selected_pond][3][3] = "36"
+            self.pondDict[self.selected_pond][4][2] = "14"
+            self.pondDict[self.selected_pond][4][3] = "36"
 
     def use_meteorological_data(self, instance, value):
         if value:
