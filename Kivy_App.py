@@ -21,6 +21,9 @@ from bs4 import BeautifulSoup
 import requests
 import threading
 import os
+import numpy as np
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from matplotlib import pyplot as plt
 
 Window.size = (800,480)
 
@@ -45,11 +48,14 @@ class MainApp(MDApp):
         screen_manager.add_widget(Builder.load_file("LoginScreen.kv"))
         screen_manager.add_widget(Builder.load_file("SystemSettingsScreen.kv"))
         screen_manager.add_widget(Builder.load_file("MainScreen.kv"))
+        screen_manager.add_widget(Builder.load_file("GraphScreen.kv"))
         self.selected_pond = "Pond 1"
+        self.graph_selected_pond = "Pond 1"
         self.securityQuestion = ""
         self.securityAnswer = ""
         self.selected_species_2 = "Nile Tilapia"
         self.selected_species = "Nile Tilapia"
+        self.selected_parameter = "Dissolved Oxygen"
         self.username = "smart aquapak"
         self.password = "fish1234"
         self.setSystem = False
@@ -149,6 +155,24 @@ class MainApp(MDApp):
         )
         self.species_menu.bind()
 
+
+        self.parameters = ["Dissolved Oxygen", "Temperature", "pH", "Water Level", "Turbidity", "Salinity"]
+        parameters_menu_items = [
+            {
+                "viewclass": "OneLineListItem",
+                "text": self.parameters[i],
+                "height": dp(56),
+                "on_release": lambda x=self.parameters[i]: self.set_parameter_item(x),
+            } for i in range(6)
+        ]
+        self.graph_parameter_menu = MDDropdownMenu(
+            caller=screen_manager.get_screen("GraphScreen").ids.parameter_selection,
+            items=parameters_menu_items,
+            width_mult=4,
+        )
+        self.graph_parameter_menu.bind()
+
+
         # Species Menu for System Settings Page
         species_menu_items_2 = [
             {
@@ -199,6 +223,12 @@ class MainApp(MDApp):
         screen_manager.get_screen("SystemSettingsScreen").ids.species_selection.set_item(text_item)
         self.selected_species_2 = text_item
         self.species_menu_2.dismiss()
+
+    def set_parameter_item(self, text_item):
+        screen_manager.get_screen("GraphScreen").ids.parameter_selection.set_item(text_item)
+        self.selected_parameter = text_item
+        self.update_graph()
+        self.graph_parameter_menu.dismiss()
     
     def species_change_alert(self):
         if not self.dialog3:
@@ -232,6 +262,12 @@ class MainApp(MDApp):
         Clock.schedule_interval(self.update_time, 1)
         return screen_manager
 
+    def set_graph_pond_item(self, text_item):
+        screen_manager.get_screen("GraphScreen").ids.pond_selection_2.set_item(text_item)
+        self.graph_selected_pond = text_item
+        self.update_graph()
+        self.graph_pond_menu.dismiss()
+    
     def set_system(self):
         self.num_of_ponds = len(self.pondDict)
         pond_menu_items = [
@@ -592,5 +628,63 @@ class MainApp(MDApp):
         self.root.get_screen("MainScreen").ids.meteorologicalWind.text = wind
         print(hours[0].text,temps[0].text,precipitationPercentages[0].text,winds[0].text)
         
+    def update_graph(self):
+        self.root.get_screen("GraphScreen").ids.layout.clear_widgets()
+        valueIndex = self.parameters.index(self.selected_parameter)
+        file = open(f"Log for {self.graph_selected_pond}.txt", "r")
+        text = file.readlines()
+        tempList = []
+        x = []
+        y= []
+        for i in text:
+            i = i.strip()
+            if i != '':
+                tempList.append(i)
+        tempList.pop(0)
+        for i in tempList:
+            i = i.split(",")
+            time = i[1]
+            value = i[valueIndex+2]
+            x.append(time)
+            y.append(value)
+        if len(x) > 5:
+            x = x[-5:]
+            y = y[-5:]
+        print(y)
+        #signal = np.array(signal)
+        #plt.plot(signal)
+        plt.plot(x,y,color=[52/255, 143/255, 235/255, 1])
+        plt.xlabel('Time(s)')
+        plt.ylabel('Sensor Value')
+        plt.xlim(x[0],x[4])
+        plt.grid(True, color='lightgray')
+        self.root.get_screen("GraphScreen").ids.layout.add_widget(FigureCanvasKivyAgg(plt.gcf()))
+
+    def plot_graph(self):
+        fileExists = os.path.exists(f"Log for {self.selected_pond}.txt")
+        if fileExists == True:
+            screen_manager.current = "GraphScreen"
+        
+            graph_pond_menu_items = [
+                {
+                    "viewclass": "OneLineListItem",
+                    "text": f"Pond {i}",
+                    "height": dp(56),
+                    "on_release": lambda x=f"Pond {i}": self.set_graph_pond_item(x),
+                } for i in range(1,self.num_of_ponds+1)
+            ]
+            self.graph_pond_menu = MDDropdownMenu(
+                caller=screen_manager.get_screen("GraphScreen").ids.pond_selection_2,
+                items=graph_pond_menu_items,
+                width_mult=4,
+            )
+            self.graph_pond_menu.bind()
+
+            self.update_graph()
+        else:
+            toast("File does not exist")
+
+    def return_to_home(self):
+        screen_manager.current = "MainScreen"
 
 MainApp().run()

@@ -1,7 +1,11 @@
 int temp;
 int var = 0;
 String text;
+int messageEnd;
+int numberEnd;
 String command;
+String number;
+
 void setup() {
   // put your setup code here, to run once:
 Serial.begin(9600);
@@ -17,9 +21,12 @@ Serial.println(text);
 if(Serial.available()>0)
 {
   command = Serial.readString();
-  if (command.indexOf("1-A1") >= 0)
+  if (command.indexOf("SMS") >= 0)
   {
-    digitalWrite(LED_BUILTIN, HIGH);
+    numberEnd = command.indexOf("-");
+    messageEnd = command.indexOf("\r\n");
+    Serial.println(command.substring(3,numberEnd));
+    Serial.println(command.substring(numberEnd+1,messageEnd));
   }
   else if (command.indexOf("1-A0") >= 0)
   {

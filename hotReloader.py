@@ -17,7 +17,7 @@ BoxLayout:
 '''
 
 class MainApp(MDApp):
-    path_to_kv_file = "MainScreen.kv"
+    path_to_kv_file = "GraphScreen.kv"
     def build(self):
         return Builder.load_string(KV)
 

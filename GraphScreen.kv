@@ -1,0 +1,34 @@
+
+MDScreen:
+    name: "GraphScreen"
+
+    FloatLayout:
+        
+        BoxLayout:
+        
+            id:layout
+
+        FloatLayout:
+
+            MDDropDownItem:
+                id: pond_selection_2
+                pos_hint: {'center_x': 0.18, 'center_y': 0.92}
+                text: 'Pond 1'
+                on_release: app.graph_pond_menu.open()
+
+            MDDropDownItem:
+                id: parameter_selection
+                pos_hint: {'center_x': 0.35, 'center_y': 0.92}
+                text: 'Dissolved Oxygen'
+                on_release: app.graph_parameter_menu.open()
+
+            MDRectangleFlatButton:
+                text: "Return to Home Screen"
+                pos_hint: {'center_x': 0.8, 'center_y': 0.93}
+                on_release: app.return_to_home()
+
+            MDRectangleFlatButton:
+                text: "Update"
+                pos_hint: {'center_x': 0.6, 'center_y': 0.93}
+                on_release: app.update_graph()
+

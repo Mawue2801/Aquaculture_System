@@ -47,6 +47,11 @@ MDScreen:
                     text: "Log Out"
                     pos_hint: {'center_x': 0.8, 'center_y': 0.91}
                     on_release: app.log_out()
+
+                MDRectangleFlatButton:
+                    text: "Display Graphs"
+                    pos_hint: {'center_x': 0.65, 'center_y': 0.91}
+                    on_release: app.plot_graph()
                     
                 MDLabel:
                     text: "Pond of Focus:"
